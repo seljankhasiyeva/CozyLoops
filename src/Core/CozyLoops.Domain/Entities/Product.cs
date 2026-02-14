@@ -22,5 +22,7 @@ namespace CozyLoops.Domain.Entities
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public int CategoryId { get; set; }
+        public Category Category { get; set; } = null!;
     }
 }
