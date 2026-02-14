@@ -1,8 +1,13 @@
-﻿using CozyLoops.Domain.DTOs;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using CozyLoops.Domain.DTOs;
 using CozyLoops.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CozyLoops.API.Controllers
 {
@@ -35,16 +40,39 @@ namespace CozyLoops.API.Controllers
         }
 
         [HttpPost("login")]
-
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
             if (user != null && await _userManager.CheckPasswordAsync(user, loginDto.Password))
             {
-                return Ok(new { Message = "Login successful", UserFullName = user.FullName
+                var authClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim("FullName", user.FullName ?? ""),
+            new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        }; 
+
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("en_azi_otuz_iki_simvoldan_ibaret_olmali_very_secret_key_2026_cff_final_project"));
+
+                var token = new JwtSecurityToken(
+                    issuer: "CozyLoops",
+                    audience: "CozyLoopsClient",
+                    expires: DateTime.Now.AddHours(3),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                );
+
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo,
+                    userName = user.FullName ?? user.UserName,
+                    message = "Login successful"
                 });
             }
-            return Unauthorized(new { Message = "Invalid email or password" });
+            return Unauthorized(new { message = "Invalid email or password" });
         }
     }
 }
