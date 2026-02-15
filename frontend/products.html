@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Collection | Cozy Loops</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">CozyLoops<span class="dot">.</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html" class="active" data-i18n="nav_products">Products</a></li>
+            <li><a href="card.html">Bucket (0)</a></li>
+            <li><a href="checklist.html">Checklist</a></li>
+            <li class="lang-switch">
+                <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
+                <span onclick="setLanguage('ru')" style="cursor: pointer;">RUS</span> |
+                <span onclick="setLanguage('en')" style="cursor: pointer;">ENG</span>
+            </li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login" data-i18n="btn_login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Products Page Layout -->
+    <section class="products-section">
+        <div class="products-container">
+
+            <!-- Sidebar Filters -->
+            <aside class="filters-sidebar">
+                <h3 class="filter-title" data-i18n="filter_title">Filters</h3>
+
+                <div class="filter-group">
+                    <h4 data-i18n="filter_collections">Collections</h4>
+                    <label class="filter-option">
+                        <input type="checkbox"> <span data-i18n="cat_amigurumi">Amigurumi</span>
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox"> <span data-i18n="cat_wearables">Wearables</span>
+                    </label>
+                    <label class="filter-option">
+                        <input type="checkbox"> <span data-i18n="cat_accessories">Accessories</span>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <h4 data-i18n="filter_price">Price</h4>
+                    <input type="range" min="0" max="200" class="price-range">
+                    <div class="price-labels">
+                        <span>$0</span>
+                        <span>$200+</span>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 data-i18n="filter_color">Color</h4>
+                    <div class="color-options">
+                        <span class="color-dot" style="background: #F4E4D8;"></span> <!-- Beige -->
+                        <span class="color-dot" style="background: #6B4E3D;"></span> <!-- Brown -->
+                        <span class="color-dot" style="background: #E6E6FA;"></span> <!-- Lavender -->
+                        <span class="color-dot" style="background: #C08552;"></span> <!-- Bronze -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="products-grid-wrapper">
+                <h1 class="page-title" data-i18n="page_all_products">All Products</h1>
+
+                <div class="product-grid independent-grid">
+                    <!-- Product 1 -->
+                    <div class="product-card" onclick="window.location.href='detail.html'">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?q=80&w=400&auto=format&fit=crop"
+                                alt="Fox">
+                        </div>
+                        <h3>Cute Fox Amigurumi</h3>
+                        <p>$45.00</p>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1616859345639-5668db752c00?q=80&w=400&auto=format&fit=crop"
+                                alt="Yarn">
+                        </div>
+                        <h3>Organic Cotton Yarn</h3>
+                        <p>$12.00</p>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1582966772630-9d10e54987aa?q=80&w=500&auto=format&fit=crop"
+                                alt="Socks">
+                        </div>
+                        <h3>Cozy Socks</h3>
+                        <p>$25.00</p>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="product-card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?q=80&w=400&auto=format&fit=crop"
+                                alt="Beanie">
+                        </div>
+                        <h3>Woolen Beanie</h3>
+                        <p>$30.00</p>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+
+                    <!-- Product 5 -->
+                    <div class="product-card">
+                        <div class="card-image">
+                            <img src="images/cardigan.png" alt="Cardigan">
+                        </div>
+                        <h3>Handmade Cardigan</h3>
+                        <p>$120.00</p>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+
+                    <!-- Product 6 -->
+                    <div class="product-card">
+                        <div class="card-image">
+                            <img src="https://images.unsplash.com/photo-1606900746977-167bb30957dc?q=80&w=400&auto=format&fit=crop"
+                                alt="Sweater">
+                        </div>
+                        <h3>Custom Sweater</h3>
+                        <p>$150.00</p>
+                        <button class="add-to-cart">Add to Cart</button>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>CozyLoops.</h3>
+                <p data-i18n="hero_title">Handcrafted warmth stitch by stitch.</p>
+                <p>Baku, Azerbaijan</p>
+            </div>
+            <div class="footer-column">
+                <h3 data-i18n="footer_contact">Contact</h3>
+                <a href="tel:+994501234567">+994 50 123 45 67</a>
+                <a href="mailto:hello@cozyloops.com">hello@cozyloops.com</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 CozyLoops. <span data-i18n="footer_rights">All rights reserved.</span>
+        </div>
+    </footer>
+
+
+    <!-- GSAP Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="ScrollTrigger.min.js"></script>
+
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

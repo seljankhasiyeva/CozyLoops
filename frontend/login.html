@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Cozy Loops</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation (Simplified for Auth) -->
+    <nav class="navbar">
+        <div class="logo">CozyLoops<span class="dot">.</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html" data-i18n="nav_products">Products</a></li>
+            <li><a href="card.html">Bucket (2)</a></li>
+            <li><a href="checklist.html">Checklist</a></li>
+            <li class="lang-switch">
+                <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
+                <span onclick="setLanguage('ru')" style="cursor: pointer;">RUS</span> |
+                <span onclick="setLanguage('en')" style="cursor: pointer;">ENG</span>
+            </li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="register.html" class="btn-login" data-i18n="btn_login">Register</a>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="auth-section">
+        <div class="auth-card">
+            <h2>Welcome Back</h2>
+            <p>Continue your crafting journey.</p>
+
+            <form onsubmit="handleLogin(event)" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="hello@cozyloops.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="auth-btn">Login</button>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Register here</a></p>
+                    <a href="#" class="forgot-pass">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- GSAP Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="ScrollTrigger.min.js"></script>
+
+    <!-- Scripts -->
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
