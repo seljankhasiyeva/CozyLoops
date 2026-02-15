@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozy Loops | Modern Crochet</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">CozyLoops<span class="dot">.</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active" data-i18n="nav_home">Home</a></li>
+            <li><a href="products.html" data-i18n="nav_products">Products</a></li>
+            <li><a href="custom.html" data-i18n="nav_custom">Custom</a></li>
+            <li><a href="card.html" data-i18n="nav_bucket">Bucket (2)</a></li>
+            <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
+            <li class="lang-switch">
+                <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
+                <span onclick="setLanguage('ru')" style="cursor: pointer;">RUS</span> |
+                <span onclick="setLanguage('en')" style="cursor: pointer;">ENG</span>
+            </li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login" data-i18n="btn_login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title" data-i18n="hero_title">Handmade Warmth <br> for Your Soul</h1>
+            <p class="hero-subtitle" data-i18n="hero_subtitle">Modern crochet art, crafted with love and precision.</p>
+            <button class="cta-button" data-i18n="btn_shop">Explore Collection</button>
+        </div>
+
+        <div class="hero-visual">
+            <!-- Arch/Oval Image with realistic crochet image -->
+            <div class="hero-arch-window">
+            </div>
+
+            <!-- BLOB 1: Basket of Yarn (Hero) -->
+            <!-- User specific image: yarn_basket.jpg -->
+            <div class="floating-element hero-basket" data-speed="0.4">
+                <img src="images/hatandscarf.png" alt="Basket of Yarn">
+            </div>
+        </div>
+    </header>
+
+    <!-- Curated Collections Section (REPLACES OLD PRODUCTS SECTION) -->
+    <section id="curated-collections" class="collections-section">
+
+        <!-- Sub-header: New Arrivals -->
+        <h3 class="mini-heading" data-i18n="mini_new">New Arrivals</h3>
+
+        <div class="slider-container">
+            <button class="slider-btn prev" onclick="slideLeft('new-arrivals-slider')">&lt;</button>
+            <div class="product-slider" id="new-arrivals-slider">
+                <!-- Product 1 -->
+                <div class="product-card" onclick="window.location.href='detail.html'">
+                    <div class="card-image">
+                        <img src="images/49103715.webp"
+                            alt="Rabbit">
+                        <span class="tag">New</span>
+                    </div>
+                    <h3 data-i18n="prod_fox">Cute Rabbit Amigurumi</h3>
+                    <p>$45.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+                <!-- Product 2 -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/bright-granny-square-crochet-cardigan-fairtrade-wildwood-cornwall.jpg" alt="Cardigan">
+                        <span class="tag">New</span>
+                    </div>
+                    <h3 data-i18n="prod_cardigan">Cozy Cardigan</h3>
+                    <p>$120.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+                <!-- Product 3 -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/il_570xN.2773578488_28r3.webp" alt="Socks">
+                    </div>
+                    <h3 data-i18n="prod_socks">Winter Socks</h3>
+                    <p>$25.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+                <!-- Product 4 (Extra for sliding demo) -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/05_43001370009_1.webp"
+                            alt="Scarf">
+                    </div>
+                    <h3 data-i18n="prod_scarf">Chunky Scarf</h3>
+                    <p>$35.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+            </div>
+            <button class="slider-btn next" onclick="slideRight('new-arrivals-slider')">&gt;</button>
+        </div>
+
+        <!-- Sub-header: Others -->
+        <h3 class="mini-heading second" data-i18n="mini_others">Others</h3>
+
+        <div class="slider-container">
+            <button class="slider-btn prev" onclick="slideLeft('others-slider')">&lt;</button>
+            <div class="product-slider" id="others-slider">
+                <!-- Product 4 -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/WO63C.webp"
+                            alt="Beanie">
+                    </div>
+                    <h3 data-i18n="prod_beanie">Woolen Beanie</h3>
+                    <p>$30.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+                <!-- Product 5 -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/8D33B15B-B730-41AC-9C40-0CC7ACB6FF99-scaled.webp"
+                            alt="Yarn">
+                    </div>
+                    <h3 data-i18n="prod_yarn">Organic Cotton Yarn</h3>
+                    <p>$12.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+                <!-- Product 6 -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/oversized-mixed-knit-sweater.jpg"
+                            alt="Sweater">
+                    </div>
+                    <h3 data-i18n="prod_sweater">Custom Sweater</h3>
+                    <p>$150.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+                <!-- Product 7 (Extra) -->
+                <div class="product-card">
+                    <div class="card-image">
+                        <img src="images/crochet-mitten-pattern-easy-1.jpg"
+                            alt="Gloves">
+                    </div>
+                    <h3 data-i18n="prod_gloves">Warm Gloves</h3>
+                    <p>$28.00</p>
+                    <button class="add-to-cart" data-i18n="btn_add_cart">Add to Cart</button>
+                </div>
+            </div>
+            <button class="slider-btn next" onclick="slideRight('others-slider')">&gt;</button>
+        </div>
+
+        <!-- Show More Button -->
+        <div class="show-more-container">
+            <a href="products.html" class="show-more-btn" data-i18n="btn_show_more">Show More &rarr;</a>
+        </div>
+    </section>
+
+    <!-- SECTION 2: Gap with Big Sock (Left side) -->
+   <!-- <div class="section-gap-sock">
+        <div class="floating-element section-sock" data-speed="0.6">
+            <img src="images/yarn.png" alt="Knitted Sock">
+        </div>
+    </div> -->
+
+    <!-- SECTION 3: Gap with Big Cardigan (Right side) -->
+    <div class="section-gap-cardigan">
+        <!-- Floating Cardigan -->
+        <div class="floating-element section-cardigan" data-speed="0.8">
+            <img src="images/cardigan.png" alt="Wool Cardigan">
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <section class="reviews-section">
+        <h2 data-i18n="review_title">Stories from our Community</h2>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <p>"Absolutely amazing quality! My little girl loves her fox."</p>
+                <span>- Sarah M.</span>
+            </div>
+            <div class="review-card">
+                <p>"The softness of the yarn is unmatched. Will buy again."</p>
+                <span>- David K.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us / Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>CozyLoops.</h3>
+                <p data-i18n="hero_title">Handcrafted warmth delivered to your doorstep.</p>
+                <p data-i18n="footer_address">Baku, Azerbaijan</p>
+            </div>
+            <div class="footer-column">
+                <h3 data-i18n="footer_contact">Contact</h3>
+                <a href="tel:+994501234567">+994 50 123 45 67</a>
+                <a href="mailto:hello@cozyloops.com">hello@cozyloops.com</a>
+                <p>Mon - Fri: 09:00 - 18:00</p>
+            </div>
+            <div class="footer-column">
+                <h3 data-i18n="footer_follow">Follow Us</h3>
+                <a href="#">Instagram</a>
+                <a href="#">Facebook</a>
+                <a href="#">Pinterest</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 CozyLoops. <span data-i18n="footer_rights">All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Chatbot & Customization -->
+    <div class="chatbot-trigger">
+        <div class="chat-icon">💬</div>
+    </div>
+
+    <!-- GSAP Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="ScrollTrigger.min.js"></script>
+
+    <!-- Main Script -->
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
