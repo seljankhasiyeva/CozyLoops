@@ -10,10 +10,12 @@ namespace CozyLoops.Domain.Entities
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
+        public string AppUserId { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Comment { get; set; } = string.Empty;
         public int Rating { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public Product Product { get; set; } = null!;
+        public AppUser AppUser { get; set; } = null!;
     }
 }

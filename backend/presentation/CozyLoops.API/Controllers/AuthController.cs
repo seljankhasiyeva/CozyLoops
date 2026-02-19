@@ -47,12 +47,13 @@ namespace CozyLoops.API.Controllers
             if (user != null && await _userManager.CheckPasswordAsync(user, loginDto.Password))
             {
                 var authClaims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim("FullName", user.FullName ?? ""),
-            new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        }; 
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id), 
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim("FullName", user.FullName ?? ""),
+                    new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
 
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("en_azi_otuz_iki_simvoldan_ibaret_olmali_very_secret_key_2026_cff_final_project"));
 
