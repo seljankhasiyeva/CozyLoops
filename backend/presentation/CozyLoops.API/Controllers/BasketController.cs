@@ -99,5 +99,31 @@ namespace CozyLoops.API.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Item removed from basket successfully!" });
         }
+
+        [HttpPost("update-quantity")]
+        public async Task<IActionResult> UpdateQuantity(int productId, int quantity)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var basket = await _context.Baskets
+                .Include(b => b.BasketItems)
+                .FirstOrDefaultAsync(b => b.AppUserId == userId);
+
+            if (basket == null) return NotFound("Basket not found");
+
+            var basketItem = basket.BasketItems.FirstOrDefault(i => i.ProductId == productId);
+            if (basketItem == null) return NotFound("Item not found");
+
+            if (quantity <= 0)
+            {
+                basket.BasketItems.Remove(basketItem);
+            }
+            else
+            {
+                basketItem.Quantity = quantity; 
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Quantity updated successfully" });
+        }
     }
 }
