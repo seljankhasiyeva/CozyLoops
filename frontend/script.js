@@ -1,157 +1,184 @@
-// Wait for DOM
-document.addEventListener("DOMContentLoaded", () => {
-    gsap.registerPlugin(ScrollTrigger);
+// ==========================================
+// 1. GLOBAL FUNKSİYALAR
+// ==========================================
 
-    // 1. Hero Animations - Yalnız .hero-title varsa işləsin
-    if (document.querySelector(".hero-title")) {
-        const tl = gsap.timeline();
-        tl.to(".hero-title", { opacity: 1, y: 0, duration: 1, ease: "power3.out" })
-          .to(".hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6")
-          .to(".cta-button", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" }, "-=0.6")
-          .from(".hero-arch-window", { y: 50, opacity: 0, duration: 1.2, ease: "power2.out" }, "-=1")
-          .from(".hero-basket", { x: 50, opacity: 0, duration: 1, ease: "back.out(1.5)" }, "-=0.8");
-    }
+async function loadProducts() {
+    try {
+        const slider = document.getElementById('new-arrivals-slider');
+        if (!slider) return;
 
-    // 2. Product Cards Reveal - Yalnız .product-slider və .product-card varsa işləsin
-    if (document.querySelector(".product-slider") && document.querySelector(".product-card")) {
-        gsap.from(".product-card", {
-            scrollTrigger: {
-                trigger: ".product-slider",
-                start: "top 85%",
-            },
-            y: 60,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: "power2.out"
+        const response = await fetch('http://localhost:5245/api/Product');
+        if (!response.ok) throw new Error("Failed to fetch products");
+        
+        const products = await response.json();
+        slider.innerHTML = ""; 
+
+        products.forEach(product => {
+            slider.innerHTML += `
+                <div class="product-card" onclick="window.location.href='detail.html?id=${product.id}'">
+                    <div class="card-image">
+                        <img src="${product.imageUrl || 'images/placeholder.webp'}" alt="${product.name}">
+                        ${product.isNew ? '<span class="tag">New</span>' : ''}
+                    </div>
+                    <h3>${product.name}</h3>
+                    <p>${product.price}.00 AZN</p>
+                    <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+                </div>
+            `;
         });
+    } catch (error) {
+        console.error("Error loading products:", error);
     }
-    const savedLang = localStorage.getItem('cozy_lang') || 'en';
-    setTimeout(() => setLanguage(savedLang), 50); // Small delay to ensure deferred scripts
-});
+}
 
-// Language Switching Logic
-window.setLanguage = function (lang) {
-    if (typeof translations === 'undefined') {
-        console.error("Translations not loaded");
+async function loadProductDetail() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+    if (!productId || !document.querySelector(".product-detail-section")) return;
+
+    try {
+        const response = await fetch(`http://localhost:5245/api/Product/${productId}`);
+        const product = await response.json();
+
+        document.querySelector(".pd-title").innerText = product.name;
+        document.querySelector(".pd-price").innerText = `$${product.price}.00`;
+        document.querySelector(".pd-description p").innerText = product.description;
+        document.querySelector(".pd-image img").src = product.imageUrl || 'images/49103715.webp';
+        document.querySelector(".pd-meta span").innerText = product.code || 'COZY-' + product.id;
+
+        const addBtn = document.querySelector(".add-to-cart-btn");
+        if (addBtn) addBtn.onclick = () => addToCart(product.id);
+    } catch (error) {
+        console.error("Product detail error:", error);
+    }
+}
+
+async function updateQty(productId, newQty) {
+    const token = localStorage.getItem('token');
+    if (newQty < 1) {
+        removeFromCart(productId);
         return;
     }
 
-    if (!translations[lang]) {
-        console.warn(`Language ${lang} not found, defaulting to 'en'`);
-        lang = 'en';
-    };
-
-    // Update Text Elements
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-            el.innerHTML = translations[lang][key];
-        }
-    });
-
-    // Save preference
-    localStorage.setItem('cozy_lang', lang);
-}
-
-// Slider Navigation Logic
-window.slideLeft = function (id) {
-    const slider = document.getElementById(id);
-    if (slider) {
-        slider.scrollBy({ left: -300, behavior: 'smooth' });
-    }
-}
-
-window.slideRight = function (id) {
-    const slider = document.getElementById(id);
-    if (slider) {
-        slider.scrollBy({ left: 300, behavior: 'smooth' });
-    }
-}
-
-async function handleRegister(event) {
-    event.preventDefault();
-    const fullName = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const userData={
-        fullName: fullName,
-        email: email,
-        password: password
-    }
-
     try {
-        const response = await fetch('http://localhost:5245/api/Auth/register', {
+        const response = await fetch(`http://localhost:5245/api/Basket/update-quantity?productId=${productId}&quantity=${newQty}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-        
-        if(response.ok){
-            alert('Registration successful!');
-            window.location.href = 'login.html';
-        }else{
-            const result = await response.json();
-            const errorMessage = result[0]?.description || "Registration failed. Please check your details.";
-            alert('Error: ' + errorMessage);
-        }
+
+        if (response.ok) loadBasket();
     } catch (error) {
-        console.error("Connection error:", error);
-        alert("Could not connect to the server. Please ensure the API is running.");
+        console.error("Update error:", error);
     }
 }
 
-
-async function handleLogin(event) {
-    event.preventDefault(); 
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    const loginData = { email, password };
+async function removeFromCart(productId) {
+    const token = localStorage.getItem('token');
+    if (!confirm("Are you sure?")) return;
 
     try {
-        const response = await fetch('http://localhost:5245/api/Auth/login', {
+        const response = await fetch(`http://localhost:5245/api/Basket/remove-item?productId=${productId}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(loginData)
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        const result = await response.json();
+        if (response.ok) loadBasket();
+    } catch (error) {
+        console.error("Remove error:", error);
+    }
+}
+
+async function loadBasket() {
+    const token = localStorage.getItem('token');
+    const tbody = document.querySelector(".cart-table tbody");
+    const summaryContainer = document.querySelector(".cart-summary");
+
+    if (!tbody || !token) return;
+
+    try {
+        const response = await fetch('http://localhost:5245/api/Basket', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
 
         if (response.ok) {
-            localStorage.setItem('token', result.token);
-            localStorage.setItem('userName', result.userName);
+            const basketData = await response.json();
+            const items = basketData.basketItems; 
 
-            alert('Login successful! Welcome, ' + result.userName);
-            
-            window.location.href = 'index.html'; 
-        } else {
-            alert(result.message || 'Login failed!');
+            if (!items || items.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Your bucket is empty.</td></tr>";
+                if (summaryContainer) {
+                    summaryContainer.querySelector(".summary-row:nth-child(2) span:last-child").innerText = "$0.00";
+                    summaryContainer.querySelector(".total span:last-child").innerText = "$0.00";
+                }
+                return;
+            }
+
+            let subtotal = 0;
+            tbody.innerHTML = items.map(item => {
+                const itemTotal = item.product.price * item.quantity;
+                subtotal += itemTotal;
+                return `
+                    <tr>
+                        <td>
+                            <div class="cart-product-info">
+                                <img src="${item.product.imageUrl || 'images/placeholder.webp'}" alt="${item.product.name}">
+                                <div><h3>${item.product.name}</h3><span>Code: COZY-${item.product.id}</span></div>
+                            </div>
+                        </td>
+                        <td>$${item.product.price}.00</td>
+                        <td>
+                            <div class="qty-control">
+                                <button class="qty-btn" onclick="updateQty(${item.productId}, ${item.quantity - 1})">-</button>
+                                <input type="text" value="${item.quantity}" readonly>
+                                <button class="qty-btn" onclick="updateQty(${item.productId}, ${item.quantity + 1})">+</button>
+                            </div>
+                        </td>
+                        <td>$${itemTotal}.00</td>
+                        <td><button class="remove-btn" onclick="removeFromCart(${item.productId})">Remove</button></td>
+                    </tr>`;
+            }).join('');
+
+            if (summaryContainer) {
+                const total = subtotal + 5;
+                summaryContainer.querySelector(".summary-row:nth-child(2) span:last-child").innerText = `$${subtotal}.00`;
+                summaryContainer.querySelector(".total span:last-child").innerText = `$${total}.00`;
+            }
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Could not connect to the server. Is the API running?');
-    }
+    } catch (error) { console.error("Basket load error:", error); }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    checkAuth();
-});
+async function addToCart(productId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("Please login first!");
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:5245/api/Basket/add-item?productId=${productId}&quantity=1`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) alert("Added to cart!");
+        else alert("Error adding item.");
+    } catch (error) { console.error("Cart error:", error); }
+}
+
+// ==========================================
+// 2. AUTH, DİL VƏ NAVİQASİYA
+// ==========================================
 
 function checkAuth() {
     const token = localStorage.getItem('token');
     const userName = localStorage.getItem('userName');
-    
-    const loginLink = document.querySelector('a[href="login.html"]');
+    const loginLink = document.querySelector('.auth-buttons');
 
     if (token && userName && loginLink) {
-        loginLink.parentElement.innerHTML = `
+        loginLink.innerHTML = `
             <span class="user-greeting">Hi, ${userName}</span>
-            <a href="#" onclick="logout()" class="logout-btn">Logout</a>
+            <a href="#" onclick="logout()" class="logout-btn" style="color:red; margin-left:10px;">Logout</a>
         `;
     }
 }
@@ -159,6 +186,30 @@ function checkAuth() {
 window.logout = function() {
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
-    alert("You have been logged out.");
-    window.location.href = 'index.html'; 
+    window.location.href = 'index.html';
 }
+
+window.setLanguage = function (lang) {
+    if (typeof translations === 'undefined') return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) el.innerHTML = translations[lang][key];
+    });
+    localStorage.setItem('cozy_lang', lang);
+}
+
+// ==========================================
+// 3. INITIALIZE
+// ==========================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    gsap.registerPlugin(ScrollTrigger);
+    
+    checkAuth();
+    loadProducts();
+    loadBasket();
+    loadProductDetail();
+
+    const savedLang = localStorage.getItem('cozy_lang') || 'en';
+    setTimeout(() => setLanguage(savedLang), 100);
+});
