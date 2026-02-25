@@ -4,30 +4,54 @@
 
 async function loadProducts() {
     try {
-        const slider = document.getElementById('new-arrivals-slider');
-        if (!slider) return;
+        const sliders = {
+            'new-arrivals-slider': 'http://localhost:5245/api/Product',
+            'others-slider': 'http://localhost:5245/api/Product' // Replace with proper endpoint if available
+        };
 
-        const response = await fetch('http://localhost:5245/api/Product');
-        if (!response.ok) throw new Error("Failed to fetch products");
-        
-        const products = await response.json();
-        slider.innerHTML = ""; 
+        for (const [id, url] of Object.entries(sliders)) {
+            const slider = document.getElementById(id);
+            if (!slider) continue;
 
-        products.forEach(product => {
-            slider.innerHTML += `
-                <div class="product-card" onclick="window.location.href='detail.html?id=${product.id}'">
-                    <div class="card-image">
-                        <img src="${product.imageUrl || 'images/placeholder.webp'}" alt="${product.name}">
-                        ${product.isNew ? '<span class="tag">New</span>' : ''}
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Failed to fetch products for ${id}`);
+
+            const products = await response.json();
+            slider.innerHTML = "";
+
+            // If it's "others", maybe filter or slice
+            const displayProducts = id === 'others-slider' ? products.slice(4) : products.slice(0, 4);
+
+            displayProducts.forEach(product => {
+                slider.innerHTML += `
+                    <div class="product-card" onclick="window.location.href='detail.html?id=${product.id}'">
+                        <div class="card-image">
+                            <img src="${product.imageUrl || 'images/placeholder.webp'}" alt="${product.name}">
+                            ${product.isNew ? '<span class="tag">New</span>' : ''}
+                        </div>
+                        <h3>${product.name}</h3>
+                        <p>${product.price}.00 AZN</p>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
                     </div>
-                    <h3>${product.name}</h3>
-                    <p>${product.price}.00 AZN</p>
-                    <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
     } catch (error) {
         console.error("Error loading products:", error);
+    }
+}
+
+function slideLeft(sliderId) {
+    const slider = document.getElementById(sliderId);
+    if (slider) {
+        slider.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+}
+
+function slideRight(sliderId) {
+    const slider = document.getElementById(sliderId);
+    if (slider) {
+        slider.scrollBy({ left: 300, behavior: 'smooth' });
     }
 }
 
@@ -102,7 +126,7 @@ async function loadBasket() {
 
         if (response.ok) {
             const basketData = await response.json();
-            const items = basketData.basketItems; 
+            const items = basketData.basketItems;
 
             if (!items || items.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Your bucket is empty.</td></tr>";
@@ -157,6 +181,7 @@ async function addToCart(productId) {
 
     try {
         const response = await fetch(`http://localhost:5245/api/Basket/add-item?productId=${productId}&quantity=1`, {
+            // ... (rest of the code seems to be okay)
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -164,6 +189,44 @@ async function addToCart(productId) {
         if (response.ok) alert("Added to cart!");
         else alert("Error adding item.");
     } catch (error) { console.error("Cart error:", error); }
+}
+
+async function handleCheckout() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("Please login first!");
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const address = prompt("Please enter your shipping address:");
+    if (!address) {
+        alert("Address is required for checkout.");
+        return;
+    }
+
+    if (!confirm(`Confirm your order to be delivered to: ${address}?`)) return;
+
+    try {
+        const response = await fetch(`http://localhost:5245/api/Order/checkout?address=${encodeURIComponent(address)}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+
+        if (response.ok) {
+            alert("Order placed successfully!");
+            window.location.href = 'checklist.html';
+        } else {
+            const errorMsg = await response.text();
+            alert("Error placing order: " + errorMsg);
+        }
+    } catch (error) {
+        console.error("Checkout error:", error);
+    }
 }
 
 // ==========================================
@@ -183,7 +246,59 @@ function checkAuth() {
     }
 }
 
-window.logout = function() {
+async function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:5245/api/Auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userName', data.userName || email.split('@')[0]);
+            window.location.href = 'index.html';
+        } else {
+            alert("Login failed! Please check your credentials.");
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        alert("An error occurred during login.");
+    }
+}
+
+async function handleRegister(event) {
+    event.preventDefault();
+    const fullName = document.getElementById('fullName').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:5245/api/Auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName, email, password })
+        });
+
+        if (response.ok) {
+            alert("Registration successful! Please login.");
+            window.location.href = 'login.html';
+        } else {
+            const errorData = await response.json();
+            alert("Registration failed: " + (errorData.message || "Unknown error"));
+        }
+    } catch (error) {
+        console.error("Registration error:", error);
+        alert("An error occurred during registration.");
+    }
+}
+
+window.logout = function () {
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
     window.location.href = 'index.html';
@@ -204,7 +319,7 @@ window.setLanguage = function (lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
     gsap.registerPlugin(ScrollTrigger);
-    
+
     checkAuth();
     loadProducts();
     loadBasket();

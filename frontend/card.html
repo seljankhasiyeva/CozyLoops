@@ -54,56 +54,9 @@
                 </div>
                 <table class="cart-table">
                     <tbody>
-                        <!-- Item 1 -->
+                        <!-- Items will be loaded dynamically by script.js -->
                         <tr>
-                            <td>
-                                <div class="cart-product-info">
-                                    <img src="https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?q=80&w=200&auto=format&fit=crop"
-                                        alt="Fox">
-                                    <div>
-                                        <h3>Cute Fox Amigurumi</h3>
-                                        <span>Code: FOX-001</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>$45.00</td>
-                            <td>
-                                <div class="qty-control">
-                                    <button class="qty-btn">-</button>
-                                    <input type="text" value="1" readonly>
-                                    <button class="qty-btn">+</button>
-                                </div>
-                            </td>
-                            <td>$45.00</td>
-                            <td>
-                                <button class="remove-btn">Remove</button>
-                            </td>
-                        </tr>
-
-                        <!-- Item 2 -->
-                        <tr>
-                            <td>
-                                <div class="cart-product-info">
-                                    <img src="https://images.unsplash.com/photo-1616859345639-5668db752c00?q=80&w=200&auto=format&fit=crop"
-                                        alt="Yarn">
-                                    <div>
-                                        <h3>Organic Cotton Yarn</h3>
-                                        <span>Color: Soft Beige</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>$12.00</td>
-                            <td>
-                                <div class="qty-control">
-                                    <button class="qty-btn">-</button>
-                                    <input type="text" value="2" readonly>
-                                    <button class="qty-btn">+</button>
-                                </div>
-                            </td>
-                            <td>$24.00</td>
-                            <td>
-                                <button class="remove-btn">Remove</button>
-                            </td>
+                            <td colspan='5' style='text-align:center; padding:20px;'>Loading your bucket...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -114,7 +67,7 @@
                 <h2>Order Summary</h2>
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>$69.00</span>
+                    <span>$0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
@@ -123,9 +76,9 @@
                 <div class="summary-divider"></div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span>$74.00</span>
+                    <span>$0.00</span>
                 </div>
-                <button class="checkout-btn">Proceed to Checkout</button>
+                <button class="checkout-btn" onclick="handleCheckout()">Proceed to Checkout</button>
             </div>
         </div>
     </section>
