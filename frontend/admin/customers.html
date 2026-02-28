@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory | CozyLoops Admin</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            CozyLoops<span>.</span> Admin
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="products.html">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="customers.html">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item" style="margin-top: auto;">
+                <a href="../index.html">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Site</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="page-title">
+                <h1>Customer Directory</h1>
+                <p>Manage your community and customer relations</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Add Customer
+                </button>
+            </div>
+        </header>
+
+        <!-- Customers Table -->
+        <section class="data-card">
+            <div class="table-controls">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search by name or email...">
+                </div>
+                <div class="filters">
+                    <select class="btn-action">
+                        <option>Sort by: Newest</option>
+                        <option>Order Count</option>
+                        <option>Total Spent</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Total Orders</th>
+                            <th>Total Spent</th>
+                            <th>Last Order</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-table">
+                        <tr>
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="customer-avatar">SM</div>
+                                    <div>
+                                        <span style="font-weight: 600; display: block;">Sarah Miller</span>
+                                        <span class="customer-email">sarah.m@example.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>12 Orders</td>
+                            <td>$540.00</td>
+                            <td>Feb 28, 2026</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <button class="btn-action">View Profile</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="customer-avatar">DK</div>
+                                    <div>
+                                        <span style="font-weight: 600; display: block;">David King</span>
+                                        <span class="customer-email">d.king@example.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>5 Orders</td>
+                            <td>$210.00</td>
+                            <td>Feb 27, 2026</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <button class="btn-action">View Profile</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="customer-avatar">AS</div>
+                                    <div>
+                                        <span style="font-weight: 600; display: block;">Anna Smith</span>
+                                        <span class="customer-email">anna_s@example.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>8 Orders</td>
+                            <td>$325.00</td>
+                            <td>Feb 27, 2026</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <button class="btn-action">View Profile</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="customer-avatar">JD</div>
+                                    <div>
+                                        <span style="font-weight: 600; display: block;">John Doe</span>
+                                        <span class="customer-email">john.doe@example.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>1 Order</td>
+                            <td>$25.00</td>
+                            <td>Feb 26, 2026</td>
+                            <td><span class="status-pills status-warning">Inactive</span></td>
+                            <td>
+                                <button class="btn-action">View Profile</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="customer-avatar">ER</div>
+                                    <div>
+                                        <span style="font-weight: 600; display: block;">Elena R.</span>
+                                        <span class="customer-email">elena.r@example.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>2 Orders</td>
+                            <td>$110.00</td>
+                            <td>Feb 25, 2026</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <button class="btn-action">View Profile</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="admin-script.js"></script>
+</body>
+
+</html>
