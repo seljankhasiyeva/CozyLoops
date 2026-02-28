@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders | CozyLoops Admin</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            CozyLoops<span>.</span> Admin
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="products.html">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="orders.html">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item" style="margin-top: auto;">
+                <a href="../index.html">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Site</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="page-title">
+                <h1>Order Management</h1>
+                <p>Track and manage customer orders</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action">
+                    <i class="fas fa-download"></i>
+                    Export CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- Orders Table -->
+        <section class="data-card">
+            <div class="table-controls">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search order ID or customer...">
+                </div>
+                <div class="filters">
+                    <select class="btn-action">
+                        <option>Status: All</option>
+                        <option>Pending</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                        <option>Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table">
+                        <tr>
+                            <td style="font-weight: 600;">#CL-1234</td>
+                            <td>Feb 28, 2026</td>
+                            <td>Sarah Miller</td>
+                            <td>Fox Amigurumi (x1)</td>
+                            <td>$45.00</td>
+                            <td><span class="status-pills status-completed">Delivered</span></td>
+                            <td>
+                                <button class="btn-action">View Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">#CL-1235</td>
+                            <td>Feb 27, 2026</td>
+                            <td>David King</td>
+                            <td>Wool Cardigan (x1)</td>
+                            <td>$120.00</td>
+                            <td><span class="status-pills status-pending">Processing</span></td>
+                            <td>
+                                <button class="btn-action">View Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">#CL-1236</td>
+                            <td>Feb 27, 2026</td>
+                            <td>Anna Smith</td>
+                            <td>Baby Blanket (x1), Yarn (x2)</td>
+                            <td>$135.00</td>
+                            <td><span class="status-pills status-completed">Delivered</span></td>
+                            <td>
+                                <button class="btn-action">View Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">#CL-1237</td>
+                            <td>Feb 26, 2026</td>
+                            <td>John Doe</td>
+                            <td>Crochet Hat (x1)</td>
+                            <td>$25.00</td>
+                            <td><span class="status-pills status-cancelled">Cancelled</span></td>
+                            <td>
+                                <button class="btn-action">View Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">#CL-1238</td>
+                            <td>Feb 25, 2026</td>
+                            <td>Elena R.</td>
+                            <td>Custom Amigurumi (x1)</td>
+                            <td>$55.00</td>
+                            <td><span class="status-pills status-warning">Pending</span></td>
+                            <td>
+                                <button class="btn-action">View Details</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="admin-script.js"></script>
+</body>
+
+</html>

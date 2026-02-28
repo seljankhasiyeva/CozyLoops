@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products | CozyLoops Admin</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            CozyLoops<span>.</span> Admin
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="index.html">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="products.html">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html">
+                    <i class="fas fa-users"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item" style="margin-top: auto;">
+                <a href="../index.html">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Site</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="page-title">
+                <h1>Product Management</h1>
+                <p>Manage your inventory and product details</p>
+            </div>
+            <a href="edit-product.html" class="btn-primary">
+                <i class="fas fa-plus"></i>
+                Add New Product
+            </a>
+        </header>
+
+        <!-- Product Table -->
+        <section class="data-card">
+            <div class="table-controls">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search products...">
+                </div>
+                <div class="filters">
+                    <select class="btn-action">
+                        <option>All Categories</option>
+                        <option>Toys</option>
+                        <option>Apparel</option>
+                        <option>Home Decor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="product-img-td">Image</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table">
+                        <tr>
+                            <td class="product-img-td"><img src="../images/hatandscarf.png" alt="Product"></td>
+                            <td style="font-weight: 500;">Fox Amigurumi</td>
+                            <td>Toys</td>
+                            <td>$45.00</td>
+                            <td class="stock-status stock-ok">24 in stock</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <a href="edit-product.html?id=123" class="btn-action"><i class="fas fa-edit"></i></a>
+                                <button class="btn-action"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="product-img-td"><img src="../images/cardigan.png" alt="Product"></td>
+                            <td style="font-weight: 500;">Wool Cardigan</td>
+                            <td>Apparel</td>
+                            <td>$120.00</td>
+                            <td class="stock-status stock-low">3 in stock</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <a href="edit-product.html?id=124" class="btn-action"><i class="fas fa-edit"></i></a>
+                                <button class="btn-action"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="product-img-td"><img src="../images/yarn.png" alt="Product"></td>
+                            <td style="font-weight: 500;">Hand-dyed Yarn Bundle</td>
+                            <td>Materials</td>
+                            <td>$35.00</td>
+                            <td class="stock-status stock-ok">15 in stock</td>
+                            <td><span class="status-pills status-completed">Active</span></td>
+                            <td>
+                                <a href="edit-product.html?id=125" class="btn-action"><i class="fas fa-edit"></i></a>
+                                <button class="btn-action"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="product-img-td"><img src="../images/hatandscarf.png" alt="Product"></td>
+                            <td style="font-weight: 500;">Baby Blanket Set</td>
+                            <td>Home Decor</td>
+                            <td>$85.00</td>
+                            <td class="stock-status stock-low">0 in stock</td>
+                            <td><span class="status-pills status-pending">Draft</span></td>
+                            <td>
+                                <a href="edit-product.html?id=126" class="btn-action"><i class="fas fa-edit"></i></a>
+                                <button class="btn-action"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="admin-script.js"></script>
+</body>
+
+</html>
