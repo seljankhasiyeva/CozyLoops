@@ -137,26 +137,98 @@
 
     <script src="admin-script.js"></script>
     <script>
-        // Specific logic for Edit/Add detection
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id');
             const title = document.getElementById('page-main-title');
             const submitBtn = document.getElementById('submit-btn');
+            const form = document.getElementById('product-form');
+            const categorySelect = document.getElementById('product-category');
+
+            // Load Categories
+            async function loadCategories() {
+                try {
+                    const response = await fetch('http://localhost:5245/api/Category');
+                    if (response.ok) {
+                        const categories = await response.json();
+                        categorySelect.innerHTML = '<option value="">Select Category</option>' +
+                            categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                    }
+                } catch (error) {
+                    console.error("Error loading categories:", error);
+                }
+            }
+
+            await loadCategories();
 
             if (productId) {
                 title.textContent = 'Update Product ' + productId;
                 submitBtn.textContent = 'Update Product';
-                // Mock: pre-fill data for demonstration
-                document.getElementById('product-name').value = 'Fox Amigurumi';
-                document.getElementById('product-price').value = '45.00';
-                document.getElementById('product-category').value = 'toys';
-                document.getElementById('product-stock').value = '24';
-                document.getElementById('product-description').value = 'A handcrafted fox amigurumi made with premium organic cotton.';
+
+                try {
+                    const response = await fetch(`http://localhost:5245/api/Product/${productId}`);
+                    if (response.ok) {
+                        const product = await response.json();
+                        document.getElementById('product-name').value = product.name;
+                        document.getElementById('product-price').value = product.price;
+                        document.getElementById('product-category').value = product.categoryId || '';
+                        document.getElementById('product-stock').value = product.stock;
+                        document.getElementById('product-description').value = product.description || '';
+                        document.getElementById('product-sku').value = product.code || '';
+                        if (product.imageUrl) {
+                            const preview = document.getElementById('image-preview');
+                            preview.src = product.imageUrl;
+                            preview.style.display = 'block';
+                            document.querySelector('.upload-icon').style.display = 'none';
+                            document.querySelector('.image-upload-area p').style.display = 'none';
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching product data:", error);
+                }
             }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData();
+                formData.append('Name', document.getElementById('product-name').value);
+                formData.append('Price', document.getElementById('product-price').value);
+                formData.append('Stock', document.getElementById('product-stock').value);
+                formData.append('Description', document.getElementById('product-description').value);
+                formData.append('ProductCode', document.getElementById('product-sku').value || '');
+                const catVal = document.getElementById('product-category').value;
+                formData.append('CategoryId', catVal ? catVal : '0');
+
+                const fileInput = document.getElementById('product-image-input');
+                if (fileInput.files && fileInput.files[0]) {
+                    formData.append('image', fileInput.files[0]);
+                }
+
+                const url = productId ? `http://localhost:5245/api/Product/${productId}` : 'http://localhost:5245/api/Product';
+                const method = productId ? 'PUT' : 'POST';
+
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        alert(`Product ${productId ? 'updated' : 'added'} successfully!`);
+                        window.location.href = 'products.html';
+                    } else {
+                        const error = await response.text();
+                        alert(`Error saving product: ${error}`);
+                    }
+                } catch (error) {
+                    console.error("Error saving product:", error);
+                    alert('An error occurred while saving the product.');
+                }
+            });
         });
 
-        // Image Preview Handler
+        // Image Preview Handler (keep existing)
         const dropzone = document.getElementById('image-upload-dropzone');
         const fileInput = document.getElementById('product-image-input');
         const preview = document.getElementById('image-preview');

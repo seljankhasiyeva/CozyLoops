@@ -41,7 +41,7 @@ namespace CozyLoops.API.Controllers
                 Address = address,
                 OrderDate = DateTime.Now,
                 OrderNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(), 
-                TotalPrice = basket.BasketItems.Sum(bi => bi.Product.Price * bi.Quantity),
+                TotalPrice = basket.BasketItems.Sum(item => item.Quantity * item.Product.Price),
                 OrderItems = new List<OrderItem>()
             };
 
@@ -83,6 +83,39 @@ namespace CozyLoops.API.Controllers
                 .ToListAsync();
 
             return Ok(orders);
+        }
+
+        [HttpGet("all-orders")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.AppUser) 
+                .OrderByDescending(o => o.OrderDate)
+                .Select(o => new {
+                    o.Id,
+                    o.OrderNumber,
+                    CustomerName = o.AppUser.UserName,
+                    o.TotalPrice,
+                    o.OrderDate,
+                    Status = "Pending", 
+                    ItemCount = o.OrderItems.Count
+                })
+                .ToListAsync();
+
+            return Ok(orders);
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetOrderStats()
+        {
+            var stats = new
+            {
+                totalSales = await _context.Orders.SumAsync(o => o.TotalPrice),
+                totalOrders = await _context.Orders.CountAsync(),
+                totalCustomers = await _context.Users.CountAsync() 
+            };
+
+            return Ok(stats);
         }
     }
 }
