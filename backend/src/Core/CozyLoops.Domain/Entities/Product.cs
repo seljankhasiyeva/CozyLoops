@@ -17,6 +17,7 @@ namespace CozyLoops.Domain.Entities
         public string ImageUrl { get; set; } = string.Empty;
 
         public string Material { get; set; } = string.Empty;
+        public int Stock { get; set; }
 
         public string Description { get; set; } = string.Empty;
 
