@@ -146,11 +146,80 @@
 
     <!-- GSAP Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- Scripts -->
     <script src="translations.js"></script>
     <script src="script.js"></script>
+    <script>
+        async function loadMyOrders() {
+            const token = localStorage.getItem('token');
+            const container = document.querySelector('.checklist-container');
+            if (!token || !container) return;
+
+            try {
+                const response = await fetch('http://localhost:5245/api/Order/my-orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const orders = await response.json();
+                    if (orders.length === 0) {
+                        container.innerHTML = '<p style="text-align:center; padding:40px; color:#888;">You have no orders yet.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = orders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <h3>Order #${order.orderNumber}</h3>
+                                    <span class="order-date">Placed on ${new Date(order.orderDate).toLocaleDateString()}</span>
+                                </div>
+                                <span class="order-type standard">Status: Pending</span>
+                            </div>
+
+                            <div class="order-items">
+                                ${order.orderItems.map(item => `
+                                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
+                                        <img src="${item.product.imageUrl || 'images/placeholder.webp'}" alt="${item.product.name}" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">
+                                        <div class="item-details">
+                                            <h4>${item.product.name}</h4>
+                                            <p>Qty: ${item.quantity} | $${item.unitPrice}.00</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="status-timeline">
+                                <div class="status-step completed">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">Order Received</span>
+                                </div>
+                                <div class="status-step active">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">In Progress</span>
+                                </div>
+                                <div class="status-step">
+                                    <div class="step-dot"></div>
+                                    <span class="step-label">Ready</span>
+                                </div>
+                            </div>
+
+                            <div class="order-actions" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+                                <span style="font-weight:700;">Total: $${order.totalPrice}.00</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error("Error loading orders:", error);
+                container.innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading your orders.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadMyOrders);
+    </script>
 </body>
 
 </html>

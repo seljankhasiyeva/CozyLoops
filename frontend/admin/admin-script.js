@@ -23,6 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Real Data Rendering for Products
+    if (document.getElementById('products-table')) {
+        fetchProducts();
+    }
+
     // Mock Data Rendering for Dashboard
     if (document.getElementById('recent-orders-table')) {
         renderRecentOrders();
@@ -30,6 +35,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (document.getElementById('salesChart')) {
         initSalesChart();
+    }
+
+    if (document.getElementById('orders-table')) {
+        fetchOrders();
+    }
+
+    if (document.getElementById('customers-table')) {
+        fetchCustomers();
     }
 
     // Modal Logic
@@ -58,28 +71,157 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function renderRecentOrders() {
-    const orders = [
-        { id: '#1234', customer: 'Sarah Miller', product: 'Fox Amigurumi', amount: '$45.00', status: 'completed' },
-        { id: '#1235', customer: 'David King', product: 'Wool Cardigan', amount: '$120.00', status: 'pending' },
-        { id: '#1236', customer: 'Anna Smith', product: 'Baby Blanket', amount: '$65.00', status: 'completed' },
-        { id: '#1237', customer: 'John Doe', product: 'Crochet Hat', amount: '$25.00', status: 'cancelled' },
-        { id: '#1238', customer: 'Elena R.', product: 'Custom Toy', amount: '$55.00', status: 'pending' }
-    ];
+async function fetchProducts() {
+    const tableBody = document.getElementById('products-table');
+    if (!tableBody) return;
 
+    try {
+        const response = await fetch('http://localhost:5245/api/Product');
+        if (!response.ok) throw new Error('Failed to fetch products');
+
+        const products = await response.json();
+        tableBody.innerHTML = products.map(product => `
+            <tr>
+                <td class="product-img-td"><img src="${product.imageUrl || '../images/placeholder.webp'}" alt="${product.name}"></td>
+                <td style="font-weight: 500;">${product.name}</td>
+                <td>${product.category ? product.category.name : 'Uncategorized'}</td>
+                <td>$${product.price}.00</td>
+                <td class="stock-status ${product.stock > 10 ? 'stock-ok' : 'stock-low'}">${product.stock} in stock</td>
+                <td><span class="status-pills status-completed">Active</span></td>
+                <td>
+                    <a href="edit-product.html?id=${product.id}" class="btn-action"><i class="fas fa-edit"></i></a>
+                    <button class="btn-action" onclick="deleteProduct(${product.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:red;">Error loading products.</td></tr>';
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        const response = await fetch(`http://localhost:5245/api/Product/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Product deleted successfully');
+            fetchProducts();
+        } else {
+            alert('Failed to delete product');
+        }
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        alert('An error occurred while deleting the product');
+    }
+}
+
+async function renderRecentOrders() {
     const tableBody = document.getElementById('recent-orders-table');
     if (!tableBody) return;
 
-    tableBody.innerHTML = orders.map(order => `
-        <tr>
-            <td>${order.id}</td>
-            <td>${order.customer}</td>
-            <td>${order.product}</td>
-            <td>${order.amount}</td>
-            <td><span class="status-pills status-${order.status}">${order.status}</span></td>
-            <td><button class="btn-action">View</button></td>
-        </tr>
-    `).join('');
+    try {
+        const response = await fetch('http://localhost:5245/api/Order/all-orders', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch orders');
+
+        const orders = await response.json();
+        const recent = orders.slice(0, 5);
+
+        if (recent.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">No orders yet.</td></tr>';
+            return;
+        }
+
+        tableBody.innerHTML = recent.map(order => `
+            <tr>
+                <td style="font-weight: 600;">#${order.orderNumber}</td>
+                <td>${order.customerName || 'Anonymous'}</td>
+                <td>${order.itemCount} items</td>
+                <td>$${order.totalPrice}.00</td>
+                <td><span class="status-pills status-${(order.status || 'Pending').toLowerCase()}">${order.status || 'Pending'}</span></td>
+                <td><a href="orders.html" class="btn-action">View</a></td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error("Error loading recent orders:", error);
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Error loading orders.</td></tr>';
+    }
+}
+
+async function fetchOrders() {
+    const tableBody = document.getElementById('orders-table');
+    if (!tableBody) return;
+
+    try {
+        const response = await fetch('http://localhost:5245/api/Order/all-orders', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch orders');
+
+        const orders = await response.json();
+        tableBody.innerHTML = orders.map(order => `
+            <tr>
+                <td style="font-weight: 600;">#${order.orderNumber}</td>
+                <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                <td>${order.customerName || 'Anonymous'}</td>
+                <td>${order.itemCount} items</td>
+                <td>$${order.totalPrice}.00</td>
+                <td><span class="status-pills status-${order.status.toLowerCase()}">${order.status}</span></td>
+                <td>
+                    <button class="btn-action">View Details</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:red;">Error loading orders.</td></tr>';
+    }
+}
+
+async function fetchCustomers() {
+    const tableBody = document.getElementById('customers-table');
+    if (!tableBody) return;
+
+    try {
+        const response = await fetch('http://localhost:5245/api/Customer', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch customers');
+
+        const customers = await response.json();
+        tableBody.innerHTML = customers.map(c => {
+            const initials = (c.userName || c.email).substring(0, 2).toUpperCase();
+            return `
+                <tr>
+                    <td>
+                        <div class="customer-info-cell">
+                            <div class="customer-avatar">${initials}</div>
+                            <div>
+                                <span style="font-weight: 600; display: block;">${c.userName || 'No Name'}</span>
+                                <span class="customer-email">${c.email}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${c.totalOrders} Orders</td>
+                    <td>$0.00</td>
+                    <td>-</td>
+                    <td><span class="status-pills status-completed">${c.status}</span></td>
+                    <td>
+                        <button class="btn-action" onclick='showCustomerProfile({ name: "${c.userName}", email: "${c.email}", initials: "${initials}" })'>View Profile</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error("Error fetching customers:", error);
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Error loading customers.</td></tr>';
+    }
 }
 
 function initSalesChart() {

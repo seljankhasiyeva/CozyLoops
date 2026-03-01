@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CozyLoops.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +19,14 @@ namespace CozyLoops.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _context.Products.Include(p => p.Reviews).ToListAsync();
+            var products = await _context.Products.Include(p => p.Category).Include(p => p.Reviews).ToListAsync();
             return Ok(products);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _context.Products.Include(p => p.Reviews).FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _context.Products.Include(p => p.Category).Include(p => p.Reviews).FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
             {
                 return NotFound("Product not found.");
@@ -100,6 +100,11 @@ namespace CozyLoops.API.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
+            if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
+            }
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
