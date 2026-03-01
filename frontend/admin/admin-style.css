@@ -490,3 +490,140 @@ tr:last-child td {
         grid-template-columns: 1fr;
     }
 }
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(45, 36, 32, 0.6);
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-modal {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    color: #888;
+    font-size: 28px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 10;
+}
+
+.close-modal:hover {
+    color: var(--accent-color);
+}
+
+/* Profile Card Specific Styles */
+.profile-card-header {
+    background: var(--sidebar-bg);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-header-info h2 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-card-body {
+    padding: 2.5rem;
+}
+
+.profile-section {
+    margin-bottom: 2.5rem;
+}
+
+.profile-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent-color);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.info-item span {
+    font-weight: 500;
+}
+
+.past-orders-table {
+    width: 100%;
+}
+
+.past-orders-table th {
+    background: #fdfdfd;
+}
+
+@media (max-width: 600px) {
+    .profile-card-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+}
