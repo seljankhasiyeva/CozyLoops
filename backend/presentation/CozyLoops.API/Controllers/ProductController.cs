@@ -34,11 +34,63 @@ namespace CozyLoops.API.Controllers
             return Ok(product);
         }
 
+        //[HttpPost]
+        //public async Task<IActionResult> Create([FromForm] Product product, IFormFile? image)
+        //{
+        //    try
+        //    {
+        //        if (image != null && image.Length > 0)
+        //        {
+        //            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+        //            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products", fileName);
+
+        //            var directory = Path.GetDirectoryName(filePath);
+        //            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+
+        //            using (var stream = new FileStream(filePath, FileMode.Create))
+        //            {
+        //                await image.CopyToAsync(stream);
+        //            }
+        //            product.ImageUrl = "/images/products/" + fileName;
+        //        }
+
+        //        _context.Products.Add(product);
+        //        await _context.SaveChangesAsync();
+
+        //        return Ok(new { message = "Product created successfully!", productId = product.Id });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"An error occured: {ex.Message}");
+        //    }
+        //}
+
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] Product product, IFormFile? image)
+        public async Task<IActionResult> Create(
+    [FromForm] string Name,
+    [FromForm] decimal Price,
+    [FromForm] string ProductCode,
+    [FromForm] string Material,
+    [FromForm] int Stock,
+    [FromForm] string Description,
+    [FromForm] int CategoryId,
+    [FromForm] string? ImageUrl, 
+    IFormFile? image)
         {
             try
             {
+                var product = new Product
+                {
+                    Name = Name,
+                    Price = Price,
+                    ProductCode = ProductCode,
+                    Material = Material,
+                    Stock = Stock,
+                    Description = Description,
+                    CategoryId = CategoryId,
+                    ImageUrl = "" 
+                };
+
                 if (image != null && image.Length > 0)
                 {
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
@@ -57,11 +109,11 @@ namespace CozyLoops.API.Controllers
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Məhsul uğurla yaradıldı!", productId = product.Id });
+                return Ok(new { message = "Product created successfully!", productId = product.Id });
             }
             catch (Exception ex)
             {
-                return BadRequest($"Xəta baş verdi: {ex.Message}");
+                return BadRequest($"An error occured: {ex.Message}");
             }
         }
 
@@ -91,7 +143,7 @@ namespace CozyLoops.API.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Məhsul yeniləndi!" });
+            return Ok(new { message = "Product updated successfully!" });
         }
 
         [HttpDelete("{id}")]
@@ -108,7 +160,7 @@ namespace CozyLoops.API.Controllers
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Məhsul sistemdən silindi!" });
+            return Ok(new { message = "Product deleted successfully!" });
         }
     }
 }
