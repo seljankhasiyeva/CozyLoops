@@ -5,74 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Product | CozyLoops Admin</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
-        rel="stylesheet">
-    <!-- Font Awesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS -->
     <link rel="stylesheet" href="admin-style.css">
 </head>
 
 <body>
-
-    <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="sidebar-logo">
-            CozyLoops<span>.</span> Admin
-        </div>
+        <div class="sidebar-logo">CozyLoops<span>.</span> Admin</div>
         <ul class="nav-links">
-            <li class="nav-item">
-                <a href="index.html">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item active">
-                <a href="products.html">
-                    <i class="fas fa-box"></i>
-                    <span>Products</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="orders.html">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span>Orders</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="customers.html">
-                    <i class="fas fa-users"></i>
-                    <span>Customers</span>
-                </a>
-            </li>
-            <li class="nav-item" style="margin-top: auto;">
-                <a href="../index.html">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>View Site</span>
-                </a>
-            </li>
+            <li class="nav-item"><a href="index.html"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+            <li class="nav-item active"><a href="products.html"><i class="fas fa-box"></i><span>Products</span></a></li>
+            <li class="nav-item"><a href="orders.html"><i class="fas fa-shopping-bag"></i><span>Orders</span></a></li>
+            <li class="nav-item"><a href="customers.html"><i class="fas fa-users"></i><span>Customers</span></a></li>
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Header -->
         <header class="admin-header">
             <div class="page-title">
                 <h1 id="page-main-title">Add New Product</h1>
-                <p>Fill in the details to create a new product in your store</p>
+                <p>Fill in the details to manage your product</p>
             </div>
-            <a href="products.html" class="btn-secondary">
-                <i class="fas fa-arrow-left"></i>
-                Back to Products
-            </a>
+            <a href="products.html" class="btn-secondary"><i class="fas fa-arrow-left"></i> Back to Products</a>
         </header>
 
-        <!-- Product Form -->
         <section class="data-card form-card">
             <form class="admin-form" id="product-form">
                 <div class="form-group">
@@ -85,16 +44,11 @@
                         <label for="product-category">Category</label>
                         <select id="product-category" class="form-control" required>
                             <option value="">Select Category</option>
-                            <option value="toys">Toys</option>
-                            <option value="apparel">Apparel</option>
-                            <option value="materials">Materials</option>
-                            <option value="home">Home Decor</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="product-price">Price ($)</label>
-                        <input type="number" id="product-price" class="form-control" placeholder="0.00" step="0.01"
-                            required>
+                        <input type="number" id="product-price" class="form-control" placeholder="0.00" step="0.01" required>
                     </div>
                 </div>
 
@@ -104,38 +58,39 @@
                         <input type="number" id="product-stock" class="form-control" placeholder="0" required>
                     </div>
                     <div class="form-group">
-                        <label for="product-sku">SKU (Optional)</label>
-                        <input type="text" id="product-sku" class="form-control" placeholder="CL-XXXX">
+                        <label for="product-material">Material</label>
+                        <input type="text" id="product-material" class="form-control" placeholder="e.g. 100% Cotton" required>
                     </div>
                 </div>
 
                 <div class="form-group">
+                    <label for="product-sku">Product Code / SKU</label>
+                    <input type="text" id="product-sku" class="form-control" placeholder="CL-XXXX">
+                </div>
+
+                <div class="form-group">
                     <label for="product-description">Description</label>
-                    <textarea id="product-description" class="form-control"
-                        placeholder="Describe your handcrafted item..."></textarea>
+                    <textarea id="product-description" class="form-control" placeholder="Describe your handcrafted item..."></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>Product Image</label>
                     <div class="image-upload-area" id="image-upload-dropzone">
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                        <p>Drag & drop product image or <strong>browse</strong></p>
-                        <span style="font-size: 0.8rem; color: #888;">Supports: JPG, PNG, WEBP (Max 2MB)</span>
+                        <p>Click to upload product image</p>
                         <input type="file" id="product-image-input" style="display: none;" accept="image/*">
-                        <img id="image-preview" class="upload-preview" src="#" alt="Preview">
+                        <img id="image-preview" class="upload-preview" src="#" alt="Preview" style="display:none; max-width: 200px; margin-top: 10px;">
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-secondary"
-                        onclick="window.location.href='products.html'">Cancel</button>
+                    <button type="button" class="btn-secondary" onclick="window.location.href='products.html'">Cancel</button>
                     <button type="submit" class="btn-primary" id="submit-btn">Save Product</button>
                 </div>
             </form>
         </section>
     </main>
 
-    <script src="admin-script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -145,7 +100,7 @@
             const form = document.getElementById('product-form');
             const categorySelect = document.getElementById('product-category');
 
-            // Load Categories
+            // 1. Load Categories
             async function loadCategories() {
                 try {
                     const response = await fetch('http://localhost:5245/api/Category');
@@ -154,15 +109,14 @@
                         categorySelect.innerHTML = '<option value="">Select Category</option>' +
                             categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
                     }
-                } catch (error) {
-                    console.error("Error loading categories:", error);
-                }
+                } catch (error) { console.error("Error loading categories:", error); }
             }
 
             await loadCategories();
 
+            // 2. Load Product Data if Editing
             if (productId) {
-                title.textContent = 'Update Product ' + productId;
+                title.textContent = 'Update Product #' + productId;
                 submitBtn.textContent = 'Update Product';
 
                 try {
@@ -173,21 +127,22 @@
                         document.getElementById('product-price').value = product.price;
                         document.getElementById('product-category').value = product.categoryId || '';
                         document.getElementById('product-stock').value = product.stock;
+                        document.getElementById('product-material').value = product.material || ''; // ADDED
                         document.getElementById('product-description').value = product.description || '';
-                        document.getElementById('product-sku').value = product.code || '';
+                        document.getElementById('product-sku').value = product.productCode || '';
+                        
                         if (product.imageUrl) {
                             const preview = document.getElementById('image-preview');
-                            preview.src = product.imageUrl;
+                            preview.src = `http://localhost:5245${product.imageUrl}`;
                             preview.style.display = 'block';
                             document.querySelector('.upload-icon').style.display = 'none';
                             document.querySelector('.image-upload-area p').style.display = 'none';
                         }
                     }
-                } catch (error) {
-                    console.error("Error fetching product data:", error);
-                }
+                } catch (error) { console.error("Error fetching product:", error); }
             }
 
+            // 3. Form Submit (Add/Update)
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
@@ -195,13 +150,15 @@
                 formData.append('Name', document.getElementById('product-name').value);
                 formData.append('Price', document.getElementById('product-price').value);
                 formData.append('Stock', document.getElementById('product-stock').value);
+                formData.append('Material', document.getElementById('product-material').value); // FIXED: Material is now sent
                 formData.append('Description', document.getElementById('product-description').value);
                 formData.append('ProductCode', document.getElementById('product-sku').value || '');
+                
                 const catVal = document.getElementById('product-category').value;
                 formData.append('CategoryId', catVal ? catVal : '0');
 
                 const fileInput = document.getElementById('product-image-input');
-                if (fileInput.files && fileInput.files[0]) {
+                if (fileInput.files[0]) {
                     formData.append('image', fileInput.files[0]);
                 }
 
@@ -215,42 +172,37 @@
                     });
 
                     if (response.ok) {
-                        alert(`Product ${productId ? 'updated' : 'added'} successfully!`);
+                        alert('Success!');
                         window.location.href = 'products.html';
                     } else {
-                        const error = await response.text();
-                        alert(`Error saving product: ${error}`);
+                        const errorMsg = await response.text();
+                        alert('Error: ' + errorMsg);
                     }
                 } catch (error) {
-                    console.error("Error saving product:", error);
-                    alert('An error occurred while saving the product.');
+                    alert('Connection error. Is the server running?');
                 }
             });
-        });
 
-        // Image Preview Handler (keep existing)
-        const dropzone = document.getElementById('image-upload-dropzone');
-        const fileInput = document.getElementById('product-image-input');
-        const preview = document.getElementById('image-preview');
-        const uploadIcon = document.querySelector('.upload-icon');
-        const uploadText = dropzone.querySelector('p');
+            // Image Preview logic
+            const dropzone = document.getElementById('image-upload-dropzone');
+            const fileInput = document.getElementById('product-image-input');
+            const preview = document.getElementById('image-preview');
 
-        dropzone.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    uploadIcon.style.display = 'none';
-                    uploadText.style.display = 'none';
+            dropzone.onclick = () => fileInput.click();
+            fileInput.onchange = function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        document.querySelector('.upload-icon').style.display = 'none';
+                        document.querySelector('.image-upload-area p').style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
+            };
         });
     </script>
 </body>
-
 </html>
