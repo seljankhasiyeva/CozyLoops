@@ -363,82 +363,46 @@ window.setLanguage = function (lang) {
 }
 
 async function loadProductDetail() {
-    const section = document.querySelector('.product-detail-section');
-    if (!section) return;
-
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) return;
 
     try {
         const response = await fetch(`http://localhost:5245/api/Product/${id}`);
-        if (!response.ok) return;
+        if (!response.ok) {
+            console.error("Məhsul tapılmadı");
+            return;
+        }
 
         const product = await response.json();
 
-        const img = section.querySelector('.pd-image img');
-        const title = section.querySelector('.pd-title');
-        const price = section.querySelector('.pd-price');
-        const metaCode = section.querySelector('.pd-meta p:first-child span');
-        const metaMaterial = section.querySelector('.pd-meta p:nth-child(2) span');
-        const desc = section.querySelector('.pd-description p');
-        const addBtn = section.querySelector('.add-to-cart-btn');
+        // Elementləri ID ilə seçirik (daha təhlükəsizdir)
+        const img = document.getElementById('main-product-img');
+        const title = document.getElementById('main-product-title');
+        const price = document.getElementById('main-product-price');
+        const code = document.getElementById('main-product-code');
+        const material = document.getElementById('main-product-material');
+        const desc = document.getElementById('main-product-desc');
+        const addBtn = document.getElementById('main-add-btn');
 
+        // Məlumatları doldururuq
         if (img) img.src = product.imageUrl || 'images/placeholder.webp';
-        if (img) img.alt = product.name;
         if (title) title.textContent = product.name;
-        if (price) price.textContent = `$${product.price}.00`;
-        if (metaCode) metaCode.textContent = product.productCode || `CL-${product.id}`;
-        if (metaMaterial) metaMaterial.textContent = product.material || '100% Organic Cotton';
-        if (desc) desc.textContent = product.description || 'Handcrafted with love.';
-        if (addBtn) addBtn.onclick = () => addToCart(product.id);
+        if (price) price.textContent = `${product.price}.00 AZN`;
+        if (code) code.textContent = product.productCode || `CL-00${product.id}`;
+        if (material) material.textContent = product.material || 'Handmade Crochet';
+        if (desc) desc.textContent = product.description || 'No description available.';
+        
+        // Add to Cart düyməsini funksiyaya bağlayırıq
+        if (addBtn) {
+            addBtn.onclick = () => addToCart(product.id);
+        }
 
+        // Səhifənin başlığını dəyişirik
         document.title = `${product.name} | Cozy Loops`;
 
-        const reviewsList = document.querySelector('.reviews-list');
-        if (reviewsList && product.reviews && product.reviews.length > 0) {
-            const avg = (product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length).toFixed(1);
-            const countEl = document.querySelector('.review-count');
-            if (countEl) countEl.textContent = `Based on ${product.reviews.length} reviews`;
-            const ratingEl = document.querySelector('.rating-number');
-            if (ratingEl) ratingEl.textContent = avg;
-
-            reviewsList.innerHTML = product.reviews.map(r => `
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <h4 class="reviewer-name">${r.userName || 'Anonymous'}</h4>
-                            <div class="review-stars">${'<span class="star filled">★</span>'.repeat(r.rating)}${'<span class="star">★</span>'.repeat(5 - r.rating)}</div>
-                        </div>
-                        <span class="review-date">${new Date(r.createdDate).toLocaleDateString()}</span>
-                    </div>
-                    <p class="review-comment">${r.comment || ''}</p>
-                </div>
-            `).join('');
-        }
-
-        const relatedGrid = document.querySelector('.related-products .product-grid');
-        if (relatedGrid) {
-            try {
-                const allRes = await fetch('http://localhost:5245/api/Product');
-                if (allRes.ok) {
-                    const all = await allRes.json();
-                    const related = all.filter(p => p.id !== product.id).slice(0, 3);
-                    relatedGrid.innerHTML = related.map(p => `
-                        <div class="product-card" onclick="window.location.href='detail.html?id=${p.id}'">
-                            <div class="card-image">
-                                <img src="${p.imageUrl || 'images/placeholder.webp'}" alt="${p.name}">
-                            </div>
-                            <h3>${p.name}</h3>
-                            <p>$${p.price}.00</p>
-                            <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${p.id})">Add to Cart</button>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) { console.error('Related products error:', e); }
-        }
     } catch (error) {
-        console.error('loadProductDetail error:', error);
+        console.error('Məlumat yüklənərkən xəta:', error);
     }
 }
 
