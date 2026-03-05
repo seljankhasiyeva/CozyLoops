@@ -64,23 +64,99 @@ function renderToContainer(container, productList) {
 // 2. SƏBƏT VƏ ORDER MƏNTİQİ
 // ==========================================
 
+async function loadBasketItems() {
+    const tbody = document.querySelector(".cart-table tbody");
+    const subtotalEl = document.querySelector(".summary-row span:last-child"); // Subtotal element
+    const totalEl = document.querySelector(".summary-row.total span:last-child"); // Total element
+    const token = localStorage.getItem('token');
+
+    if (!tbody || !token) return;
+
+    try {
+        const response = await fetch(`${BASE_URL}/api/Basket`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const basket = await response.json();
+            const items = basket.basketItems || [];
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Your bucket is empty.</td></tr>`;
+                return;
+            }
+
+            let subtotal = 0;
+            tbody.innerHTML = items.map(item => {
+                const itemTotal = item.product.price * item.quantity;
+                subtotal += itemTotal;
+                
+                // Using your exact HTML structure from card.html
+                return `
+                <tr>
+                    <td>
+                        <div class="cart-product-info">
+                            <img src="${item.product.imageUrl || 'images/placeholder.webp'}" alt="${item.product.name}">
+                            <div><h3>${item.product.name}</h3></div>
+                        </div>
+                    </td>
+                    <td>$${item.product.price}.00</td>
+                    <td>
+                        <div class="qty-control">
+                            <button onclick="updateQuantity(${item.productId}, ${item.quantity - 1})">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.productId}, ${item.quantity + 1})">+</button>
+                        </div>
+                    </td>
+                    <td>$${itemTotal}.00</td>
+                    <td><button class="remove-btn" onclick="removeItem(${item.productId})">×</button></td>
+                </tr>`;
+            }).join('');
+
+            // Update Summary
+            if (subtotalEl) subtotalEl.innerText = `$${subtotal}.00`;
+            if (totalEl) totalEl.innerText = `$${subtotal + 5}.00`; // Assuming $5 shipping
+        }
+    } catch (error) {
+        console.error("Error loading basket:", error);
+    }
+}
+
 async function addToCart(productId) {
     const token = localStorage.getItem('token');
+    
     if (!token) {
-        alert("Please login first!");
+        alert("Please login to add items to your bucket!");
         window.location.href = 'login.html';
         return;
     }
+
     try {
+        // Matches your C# Controller: AddItemToBasket(int productId, int quantity)
         const response = await fetch(`${BASE_URL}/api/Basket/add-item?productId=${productId}&quantity=1`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
+
         if (response.ok) {
-            alert("Added to cart!");
-            updateBucketCount();
+            alert("Product added to bucket!");
+            // Update the count in the navbar immediately
+            updateBucketCount(); 
+            
+            // If we are currently on the card.html page, refresh the list
+            if (window.location.pathname.includes('card.html')) {
+                loadBasketItems();
+            }
+        } else {
+            const error = await response.text();
+            console.error("Server responded with error:", error);
         }
-    } catch (error) { console.error("Cart error:", error); }
+    } catch (error) {
+        console.error("Network error:", error);
+    }
 }
 
 async function updateBucketCount() {
@@ -129,6 +205,63 @@ window.setLanguage = function(lang) {
     localStorage.setItem('cozy_lang', lang);
 }
 
+// 2b. UPDATE QUANTITY
+window.updateQuantity = async function(productId, newQty) {
+    if (newQty < 1) return removeItem(productId);
+    const token = localStorage.getItem('token');
+    
+    try {
+        // Bu hissə sənin backend-dəki update endpoint-inə uyğun olmalıdır
+        const response = await fetch(`${BASE_URL}/api/Basket/update-quantity?productId=${productId}&quantity=${newQty}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            loadBasketItems(); // Cədvəli yenidən yüklə
+            updateBucketCount(); // Navbardakı rəqəmi yenilə
+        }
+    } catch (error) { console.error("Update error:", error); }
+}
+
+async function handleCheckout() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        // Backend-dəki Order controller-inə uyğun:
+        const response = await fetch(`${BASE_URL}/api/Order/checkout?address=Home`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            alert("Order placed successfully!");
+            window.location.href = 'checklist.html';
+        } else {
+            alert("Something went wrong during checkout.");
+        }
+    } catch (error) { console.error("Checkout error:", error); }
+}
+
+// 2c. REMOVE ITEM
+window.removeItem = async function(productId) {
+    if (!confirm("Are you sure you want to remove this item?")) return;
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await fetch(`${BASE_URL}/api/Basket/remove-item?productId=${productId}`, {
+            method: 'POST', // Və ya DELETE (backend-dən asılıdır)
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            loadBasketItems();
+            updateBucketCount();
+        }
+    } catch (error) { console.error("Remove error:", error); }
+}
+
 // ==========================================
 // 4. BAŞLATMA (INIT)
 // ==========================================
@@ -137,6 +270,9 @@ document.addEventListener("DOMContentLoaded", () => {
     checkAuth();
     loadProducts();
     updateBucketCount();
+    if (document.querySelector(".cart-table")) {
+        loadBasketItems();
+    }
     
     // Detal səhifəsi üçündürsə
     if (document.getElementById('main-product-img')) {
