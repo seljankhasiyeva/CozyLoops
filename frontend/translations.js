@@ -2,7 +2,8 @@ const translations = {
     "ru": {
         "nav_home": "Главная",
         "nav_products": "Каталог",
-        "nav_bucket": "Корзина",
+        "nav_card": "Корзина",
+        "nav_luma": "LUMA",
         "nav_checklist": "Заказы",
         "nav_blog": "Блог",
         "btn_login": "Войти",
@@ -46,16 +47,21 @@ const translations = {
         "table_price": "Цена",
         "table_qty": "Кол-во",
         "table_total": "Итого",
+        "table_action": "Действие",
         "cart_total": "Итого в корзине",
+        "shipping": "Доставка",
         "btn_checkout": "Оформить Заказ",
         "review_title": "Истории нашего сообщества",
         "footer_address": "Баку, Азербайджан",
-        "footer_follow": "Подписаться"
+        "footer_follow": "Подписаться",
+        "assistant_title": "Помощник LUMA",
+        "assistant_placeholder": "Расскажите мне о ваших идеях..."
     },
     "en": {
         "nav_home": "Home",
         "nav_products": "Products",
-        "nav_bucket": "Bucket",
+        "nav_card": "Cart",
+        "nav_luma": "LUMA",
         "nav_checklist": "Checklist",
         "nav_blog": "Blog",
         "btn_login": "Login",
@@ -94,21 +100,26 @@ const translations = {
         "status_shipped": "Shipped",
         "status_delivered": "Delivered",
         "btn_track": "Track",
-        "bucket_title": "Your Bucket",
+        "bucket_title": "Your Cart",
         "table_product": "Product",
         "table_price": "Price",
         "table_qty": "Quantity",
         "table_total": "Total",
+        "table_action": "Action",
         "cart_total": "Cart Total",
+        "shipping": "Shipping",
         "btn_checkout": "Proceed to Checkout",
         "review_title": "Stories from our Community",
         "footer_address": "Baku, Azerbaijan",
-        "footer_follow": "Follow Us"
+        "footer_follow": "Follow Us",
+        "assistant_title": "LUMA Assistant",
+        "assistant_placeholder": "Tell me your ideas..."
     },
     "az": {
         "nav_home": "Ana Səhifə",
         "nav_products": "Məhsullar",
-        "nav_bucket": "Səbət",
+        "nav_card": "Səbət",
+        "nav_luma": "LUMA",
         "nav_checklist": "Sifarişlər",
         "nav_blog": "Bloq",
         "btn_login": "Giriş",
@@ -152,11 +163,15 @@ const translations = {
         "table_price": "Qiymət",
         "table_qty": "Say",
         "table_total": "Cəmi",
+        "table_action": "Əməliyyat",
         "cart_total": "Səbət Cəmi",
+        "shipping": "Çatdırılma",
         "btn_checkout": "Sifarişi Tamamla",
         "review_title": "İcma Hekayələrimiz",
         "footer_address": "Bakı, Azərbaycan",
-        "footer_follow": "Bizi İzləyin"
+        "footer_follow": "Bizi İzləyin",
+        "assistant_title": "LUMA Kömə­kçi",
+        "assistant_placeholder": "Fikirlərinizi söyləyin..."
     }
 };
 

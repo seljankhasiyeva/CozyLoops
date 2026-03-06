@@ -8,6 +8,12 @@ function getToken() {
     return localStorage.getItem('token');
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
     // ── Sidebar Toggle ──────────────────────────────
@@ -19,12 +25,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Page Detection & Data Loading ───────────────
-    if (document.getElementById('products-table'))      fetchProducts();
-    if (document.getElementById('orders-table'))        fetchOrders();
-    if (document.getElementById('customers-table'))     fetchCustomers();
+    if (document.getElementById('products-table')) fetchProducts();
+    if (document.getElementById('orders-table')) fetchOrders();
+    if (document.getElementById('customers-table')) fetchCustomers();
     if (document.getElementById('recent-orders-table')) renderRecentOrders();
-    if (document.getElementById('stat-total-sales'))    loadStats();
-    if (document.getElementById('salesChart'))          initSalesChart();
+    if (document.getElementById('stat-total-sales')) loadStats();
+    if (document.getElementById('salesChart')) initSalesChart();
     if (document.getElementById('shipping-cost-input')) loadShippingCost();
 });
 
@@ -75,11 +81,11 @@ async function fetchProducts() {
             <tr>
                 <td class="product-img-td">
                     <img src="${product.imageUrl ? 'http://localhost:5245' + product.imageUrl : '../images/placeholder.webp'}"
-                         alt="${product.name}"
+                         alt="${escapeHtml(product.name)}"
                          onerror="this.src='../images/placeholder.webp'">
                 </td>
-                <td style="font-weight:500;">${product.name}</td>
-                <td>${product.category ? product.category.name : 'Uncategorized'}</td>
+                <td style="font-weight:500;">${escapeHtml(product.name)}</td>
+                <td>${product.category ? escapeHtml(product.category.name) : 'Uncategorized'}</td>
                 <td>${product.price}.00 AZN</td>
                 <td class="stock-status ${product.stock > 5 ? 'stock-ok' : 'stock-low'}">${product.stock} in stock</td>
                 <td><span class="status-pills status-completed">Active</span></td>
@@ -138,10 +144,10 @@ async function fetchOrders() {
             <tr>
                 <td style="font-weight:600;">#${order.orderNumber}</td>
                 <td>${new Date(order.orderDate).toLocaleDateString()}</td>
-                <td>${order.customerName || 'Anonymous'}</td>
+                <td>${escapeHtml(order.customerName || 'Anonymous')}</td>
                 <td>${order.itemCount} items</td>
                 <td>${order.totalPrice}.00 AZN</td>
-                <td><span class="status-pills status-pending">${order.status || 'Pending'}</span></td>
+                <td><span class="status-pills status-pending">${escapeHtml(order.status || 'Pending')}</span></td>
                 <td><button class="btn-action" onclick="viewOrder(${order.id})"><i class="fas fa-eye"></i></button></td>
             </tr>
         `).join('');
@@ -215,11 +221,11 @@ async function fetchCustomers() {
                 <td>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div style="width:36px; height:36px; border-radius:50%; background:#c9a96e; color:white; display:flex; align-items:center; justify-content:center; font-weight:700;">
-                            ${(customer.fullName || customer.userName || 'U')[0].toUpperCase()}
+                            ${(escapeHtml(customer.fullName || customer.userName || 'U'))[0].toUpperCase()}
                         </div>
                         <div>
-                            <div style="font-weight:500;">${customer.fullName || customer.userName}</div>
-                            <div style="font-size:0.8rem; color:#888;">${customer.email}</div>
+                            <div style="font-weight:500;">${escapeHtml(customer.fullName || customer.userName)}</div>
+                            <div style="font-size:0.8rem; color:#888;">${escapeHtml(customer.email)}</div>
                         </div>
                     </div>
                 </td>
@@ -248,7 +254,9 @@ function viewCustomer(id) {
 
 async function loadShippingCost() {
     try {
-        const response = await fetch(`${API_BASE}/Settings/ShippingCost`);
+
+        const response = await fetch(`${API_BASE}/Setting/ShippingCost`);
+
         if (response.ok) {
             const data = await response.json();
             const input = document.getElementById('shipping-cost-input');
@@ -264,7 +272,7 @@ async function updateShippingCost() {
     if (!input) return;
 
     try {
-        const response = await fetch(`${API_BASE}/Settings/ShippingCost`, {
+        const response = await fetch(`${API_BASE}/Setting/ShippingCost`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

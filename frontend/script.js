@@ -11,6 +11,12 @@ function getImageUrl(url) {
     return `${BASE_URL}/${cleanUrl}`;
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // ==========================================
 // 1. AUTH FUNCTIONS
 // ==========================================
@@ -184,11 +190,11 @@ function renderToContainer(container, productList) {
     container.innerHTML = productList.map(product => `
         <div class="product-card" onclick="window.location.href='detail.html?id=${product.id}'">
             <div class="card-image">
-                <img src="${getImageUrl(product.imageUrl)}" alt="${product.name}" onerror="this.src='images/placeholder.webp'">
+                <img src="${getImageUrl(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='images/placeholder.webp'">
                 ${product.isNew ? '<span class="tag">New</span>' : ''}
             </div>
             <div class="product-info">
-                <h3>${product.name}</h3>
+                <h3>${escapeHtml(product.name)}</h3>
                 <p class="price">${product.price}.00 AZN</p>
                 <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
             </div>
@@ -206,7 +212,7 @@ function getBasketItems(basket) {
 
 async function getShippingCost() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Settings/ShippingCost`);
+        const response = await fetch(`${API_BASE_URL}/Setting/ShippingCost`);
         if (response.ok) {
             const data = await response.json();
             return parseFloat(data.value) || 5;
@@ -219,8 +225,9 @@ async function getShippingCost() {
 
 async function loadBasketItems() {
     const tbody = document.querySelector(".cart-table tbody");
-    const subtotalEl = document.querySelector(".summary-row span:last-child");
-    const totalEl = document.querySelector(".summary-row.total span:last-child");
+    const subtotalEl = document.getElementById("subtotal-amount");
+    const shippingEl = document.getElementById("shipping-amount");
+    const totalEl = document.getElementById("total-amount");
     const token = getToken();
 
     if (!tbody) return;
@@ -268,8 +275,8 @@ async function loadBasketItems() {
                 <tr>
                     <td>
                         <div class="cart-product-info">
-                            <img src="${getImageUrl(product.imageUrl)}" alt="${product.name}" onerror="this.src='images/placeholder.webp'">
-                            <div><h3>${product.name}</h3></div>
+                            <img src="${getImageUrl(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='images/placeholder.webp'">
+                            <div><h3>${escapeHtml(product.name)}</h3></div>
                         </div>
                     </td>
                     <td>${product.price}.00 AZN</td>
@@ -285,8 +292,9 @@ async function loadBasketItems() {
                 </tr>`;
             }).join('');
 
-            if (subtotalEl) subtotalEl.innerText = `${subtotal}.00 AZN`;
-            if (totalEl) totalEl.innerText = `${subtotal + shippingCost}.00 AZN`;
+            if (subtotalEl) subtotalEl.textContent = `${subtotal}.00 AZN`;
+            if (shippingEl) shippingEl.textContent = `${shippingCost}.00 AZN`;
+            if (totalEl) totalEl.textContent = `${subtotal + shippingCost}.00 AZN`;
         }
     } catch (error) {
         console.error("Error loading basket:", error);
@@ -340,8 +348,8 @@ async function updateBucketCount() {
             const data = await response.json();
             const items = getBasketItems(data);
             const count = items.reduce((sum, i) => sum + (i.quantity || i.Quantity || 0), 0);
-            document.querySelectorAll('a[href="card.html"]').forEach(link => {
-                link.innerText = `Bucket (${count})`;
+            document.querySelectorAll('#bucket-count').forEach(el => {
+                el.textContent = count;
             });
         }
     } catch (e) {
@@ -432,10 +440,210 @@ window.setLanguage = function (lang) {
 };
 
 // ==========================================
+// 4. LUNA ASSISTANT
+// ==========================================
+
+function initAssistant() {
+    // Create floating assistant button
+    const assistantBtn = document.createElement('button');
+    assistantBtn.id = 'luma-assistant-btn';
+    assistantBtn.className = 'luma-assistant-btn';
+    assistantBtn.innerHTML = '🧶';
+    assistantBtn.title = 'LUMA Assistant';
+    assistantBtn.onclick = openAssistant;
+    document.body.appendChild(assistantBtn);
+
+    // Create assistant modal
+    const modal = document.createElement('div');
+    modal.id = 'luma-modal';
+    modal.className = 'luma-modal';
+    modal.innerHTML = `
+        <div class="luma-modal-content">
+            <div class="luma-header">
+                <h3>LUMA Assistant</h3>
+                <button class="luma-close-btn" onclick="closeAssistant()">&times;</button>
+            </div>
+            <div class="luma-messages"></div>
+            <div class="luma-input-area">
+                <input type="text" id="luma-input" placeholder="Tell me your ideas..." class="luma-input">
+                <button onclick="sendLumaMessage()" class="luma-send-btn">Send</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Add styles dynamically
+    if (!document.getElementById('luma-styles')) {
+        const style = document.createElement('style');
+        style.id = 'luma-styles';
+        style.textContent = `
+            .luma-assistant-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: var(--accent-color);
+                color: white;
+                border: none;
+                font-size: 2rem;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                transition: all 0.3s;
+                z-index: 999;
+            }
+            .luma-assistant-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            }
+            .luma-modal {
+                display: none;
+                position: fixed;
+                bottom: 100px;
+                right: 30px;
+                width: 350px;
+                max-height: 500px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                z-index: 1000;
+                flex-direction: column;
+            }
+            .luma-modal.open {
+                display: flex;
+            }
+            .luma-modal-content {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            .luma-header {
+                padding: 1rem;
+                background: var(--accent-color);
+                color: white;
+                border-radius: 12px 12px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .luma-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+            }
+            .luma-close-btn {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+            .luma-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1rem;
+                background: #f9f9f9;
+            }
+            .luma-message {
+                margin-bottom: 0.8rem;
+                padding: 0.8rem;
+                border-radius: 8px;
+                max-width: 85%;
+                word-wrap: break-word;
+            }
+            .luma-message.user {
+                background: var(--accent-color);
+                color: white;
+                margin-left: auto;
+            }
+            .luma-message.luma {
+                background: #e8e8e8;
+                color: #333;
+            }
+            .luma-input-area {
+                display: flex;
+                gap: 0.5rem;
+                padding: 1rem;
+                border-top: 1px solid #eee;
+                background: white;
+                border-radius: 0 0 12px 12px;
+            }
+            .luma-input {
+                flex: 1;
+                border: 1px solid #ddd;
+                padding: 0.5rem;
+                border-radius: 4px;
+                font-family: var(--font-body);
+            }
+            .luma-send-btn {
+                background: var(--accent-color);
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 500;
+            }
+            @media (max-width: 600px) {
+                .luma-modal {
+                    width: calc(100% - 40px);
+                    bottom: 90px;
+                    right: 20px;
+                }
+                .luma-assistant-btn {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 50px;
+                    height: 50px;
+                    font-size: 1.5rem;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+window.openAssistant = function() {
+    const modal = document.getElementById('luma-modal');
+    if (modal) modal.classList.add('open');
+};
+
+window.closeAssistant = function() {
+    const modal = document.getElementById('luma-modal');
+    if (modal) modal.classList.remove('open');
+};
+
+window.sendLumaMessage = function() {
+    const input = document.getElementById('luma-input');
+    const messagesDiv = document.querySelector('.luma-messages');
+    
+    if (!input.value.trim()) return;
+    
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'luma-message user';
+    userMsg.textContent = input.value;
+    messagesDiv.appendChild(userMsg);
+    
+    // Simulate LUMA response (can be connected to actual AI)
+    setTimeout(() => {
+        const lumaMsg = document.createElement('div');
+        lumaMsg.className = 'luma-message luma';
+        lumaMsg.textContent = 'Thanks for your message! This feature will be connected to our AI assistant soon.';
+        messagesDiv.appendChild(lumaMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }, 500);
+    
+    input.value = '';
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+};
+
+// ==========================================
 // 5. INIT
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
+    initAssistant();
     checkAuth();
     loadProducts();
     updateBucketCount();
@@ -463,6 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('main-product-desc').innerText = p.description || 'Handmade quality.';
                 const btn = document.getElementById('main-add-btn');
                 if (btn) btn.onclick = () => addToCart(p.id);
+                loadReviews(p.id);
             }
         })();
     }
@@ -474,3 +683,49 @@ document.addEventListener("DOMContentLoaded", () => {
 // Slider Navigation
 window.slideLeft = (id) => document.getElementById(id)?.scrollBy({ left: -300, behavior: 'smooth' });
 window.slideRight = (id) => document.getElementById(id)?.scrollBy({ left: 300, behavior: 'smooth' });
+
+// ==========================================
+// 6. REVIEWS
+// ==========================================
+
+async function loadReviews(productId) {
+    const reviewsList = document.querySelector('.reviews-list');
+    if (!reviewsList) return;
+
+    try {
+        const response = await fetch(`${BASE_URL}/api/Review/product/${productId}`);
+        if (response.ok) {
+            const reviews = await response.json();
+            if (!reviews || reviews.length === 0) {
+                reviewsList.innerHTML = '<p style="text-align:center; padding:2rem; color:#999;">No reviews yet. Be the first to review!</p>';
+                return;
+            }
+
+            // Calculate average rating
+            const avgRating = (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1);
+            const ratingEl = document.querySelector('.rating-number');
+            const countEl = document.querySelector('.review-count');
+            
+            if (ratingEl) ratingEl.textContent = avgRating;
+            if (countEl) countEl.textContent = `Based on ${reviews.length} review${reviews.length !== 1 ? 's' : ''}`;
+
+            // Render reviews
+            reviewsList.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <h4 class="reviewer-name">${escapeHtml(review.userName || 'Anonymous')}</h4>
+                            <div class="review-stars">
+                                ${Array(5).fill(0).map((_, i) => `<span class="star ${i < review.rating ? 'filled' : ''}">★</span>`).join('')}
+                            </div>
+                        </div>
+                        <span class="review-date">${new Date(review.createdDate).toLocaleDateString()}</span>
+                    </div>
+                    <p class="review-comment">${escapeHtml(review.comment)}</p>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+    }
+}
