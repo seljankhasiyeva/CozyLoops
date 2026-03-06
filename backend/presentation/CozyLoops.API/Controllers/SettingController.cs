@@ -39,7 +39,7 @@ namespace CozyLoops.API.Controllers
         }
 
         [HttpPut("{key}")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> UpdateSetting(string key, [FromBody] UpdateSettingDto dto)
         {
             var setting = await _context.Settings.FirstOrDefaultAsync(s => s.Key == key);

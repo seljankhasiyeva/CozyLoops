@@ -29,6 +29,7 @@ function removeToken() {
     localStorage.removeItem("cozyloops_token");
     localStorage.removeItem("cozyloops_user");
     localStorage.removeItem("userName");
+    localStorage.removeItem("isAdmin");
 }
 
 function saveUser(user) {
@@ -43,6 +44,10 @@ function getUser() {
 
 function isLoggedIn() {
     return !!getToken();
+}
+
+function isAdmin() {
+    return localStorage.getItem("isAdmin") === "true";
 }
 
 async function register(fullName, email, password) {
@@ -78,7 +83,8 @@ async function login(email, password) {
         if (response.ok) {
             saveToken(data.token);
             saveUser({ userName: data.userName, expiration: data.expiration });
-            return { success: true, message: data.message, userName: data.userName };
+            localStorage.setItem("isAdmin", data.isAdmin ? "true" : "false");
+            return { success: true, message: data.message, userName: data.userName, isAdmin: data.isAdmin };
         } else {
             return { success: false, message: data.message || "Login failed." };
         }
@@ -116,7 +122,12 @@ async function handleLogin(e) {
     if (!email || !password) return;
     const result = await login(email, password);
     if (result.success) {
-        window.location.href = 'index.html';
+        // Admin isə admin panelə yönləndir
+        if (result.isAdmin) {
+            window.location.href = 'admin/index.html';
+        } else {
+            window.location.href = 'index.html';
+        }
     } else {
         if (errorEl) errorEl.innerText = result.message;
         else alert(result.message);
@@ -189,9 +200,21 @@ function renderToContainer(container, productList) {
 // 3. BASKET
 // ==========================================
 
-// Helper: backend həm basketItems həm BasketItems qaytara bilər
 function getBasketItems(basket) {
     return basket.basketItems || basket.BasketItems || [];
+}
+
+async function getShippingCost() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/Settings/ShippingCost`);
+        if (response.ok) {
+            const data = await response.json();
+            return parseFloat(data.value) || 5;
+        }
+    } catch (e) {
+        console.log("Shipping cost fetch failed, using default.");
+    }
+    return 5;
 }
 
 async function loadBasketItems() {
@@ -208,22 +231,25 @@ async function loadBasketItems() {
     }
 
     try {
-        const response = await fetch(`${BASE_URL}/api/Basket`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const [basketResponse, shippingCost] = await Promise.all([
+            fetch(`${BASE_URL}/api/Basket`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }),
+            getShippingCost()
+        ]);
 
-        if (response.status === 401) {
+        if (basketResponse.status === 401) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Session expired. Please <a href="login.html">login again</a>.</td></tr>`;
             return;
         }
 
-        if (response.status === 404) {
+        if (basketResponse.status === 404) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Your basket is empty.</td></tr>`;
             return;
         }
 
-        if (response.ok) {
-            const basket = await response.json();
+        if (basketResponse.ok) {
+            const basket = await basketResponse.json();
             const items = getBasketItems(basket);
 
             if (items.length === 0) {
@@ -260,7 +286,7 @@ async function loadBasketItems() {
             }).join('');
 
             if (subtotalEl) subtotalEl.innerText = `${subtotal}.00 AZN`;
-            if (totalEl) totalEl.innerText = `${subtotal + 5}.00 AZN`;
+            if (totalEl) totalEl.innerText = `${subtotal + shippingCost}.00 AZN`;
         }
     } catch (error) {
         console.error("Error loading basket:", error);
@@ -270,13 +296,11 @@ async function loadBasketItems() {
 
 async function addToCart(productId) {
     const token = getToken();
-
     if (!token) {
         alert("Please login to add items to your basket!");
         window.location.href = 'login.html';
         return;
     }
-
     try {
         const response = await fetch(`${BASE_URL}/api/Basket/add-item?productId=${productId}&quantity=1`, {
             method: 'POST',
@@ -285,7 +309,6 @@ async function addToCart(productId) {
                 'Content-Type': 'application/json'
             }
         });
-
         if (response.ok) {
             alert("Product added to basket!");
             updateBucketCount();
@@ -388,8 +411,12 @@ function checkAuth() {
     const userName = localStorage.getItem('userName');
     const authBox = document.querySelector('.auth-buttons');
     if (token && userName && authBox) {
+        const adminLink = isAdmin()
+            ? `<a href="admin/index.html" style="color:#c9a96e; margin-left:15px; font-weight:500;">Admin Panel</a>`
+            : '';
         authBox.innerHTML = `
             <span class="user-greeting">Hi, ${userName}</span>
+            ${adminLink}
             <a href="#" onclick="window.logout()" class="logout-link" style="color:#ff4d4d; margin-left:15px; font-weight:500;">Logout</a>
         `;
     }
