@@ -20,7 +20,8 @@
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
-            <li><a href="card.html">Bucket</a></li>
+            <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
+            <li><a href="card.html"><span data-i18n="nav_card">Card</span></a></li>
             <li><a href="checklist.html" class="active">Checklist</a></li>
             <li class="lang-switch">
                 <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
@@ -83,7 +84,7 @@
             // Shipping cost-u backendden al
             let shippingCost = 5;
             try {
-                const shippingRes = await fetch(`${BASE}/api/Order/shipping-cost`);
+                const shippingRes = await fetch(`${BASE}/api/Setting/ShippingCost`);
                 if (shippingRes.ok) {
                     const shippingData = await shippingRes.json();
                     shippingCost = parseFloat(shippingData.value);

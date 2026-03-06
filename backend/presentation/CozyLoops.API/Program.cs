@@ -56,7 +56,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 .AddDefaultTokenProviders();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = "en_azi_otuz_iki_simvoldan_ibaret_olmali_very_secret_key_2026_cff_final_project";
+var secretKey = jwtSettings["Secret"];
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -94,7 +94,7 @@ app.UseStaticFiles();
 
 app.UseCors("AllowAll");
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 

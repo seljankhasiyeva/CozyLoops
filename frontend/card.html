@@ -24,7 +24,8 @@
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
-            <li><a href="card.html" class="active">Bucket (2)</a></li>
+            <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
+            <li><a href="card.html" class="active"><span data-i18n="nav_card">Card</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html">Checklist</a></li>
             <li class="lang-switch">
                 <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
@@ -39,7 +40,7 @@
 
     <!-- Bucket / Cart Section -->
     <section class="bucket-section">
-        <h1 class="page-title" data-i18n="bucket_title">Your Bucket</h1>
+        <h1 class="page-title" data-i18n="bucket_title">Your Card</h1>
 
         <div class="bucket-container">
             <!-- Cart Items -->
@@ -67,16 +68,16 @@
                 <h2>Order Summary</h2>
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>$0.00</span>
+                    <span id="subtotal-amount">0.00 AZN</span>
                 </div>
                 <div class="summary-row">
-                    <span>Shipping</span>
-                    <span>$5.00</span>
+                    <span data-i18n="shipping">Shipping</span>
+                    <span id="shipping-amount">0.00 AZN</span>
                 </div>
                 <div class="summary-divider"></div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span>$0.00</span>
+                    <span id="total-amount">0.00 AZN</span>
                 </div>
                 <button class="checkout-btn" onclick="handleCheckout()">Proceed to Checkout</button>
             </div>
