@@ -25,7 +25,7 @@
             <li><a href="index.html">Home</a></li>
             <li><a href="products.html" class="active" data-i18n="nav_products">Products</a></li>
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
-            <li><a href="card.html"><span data-i18n="nav_card">Card</span> (<span id="bucket-count">0</span>)</a></li>
+            <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html">Checklist</a></li>
             <li class="lang-switch">
                 <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
@@ -83,7 +83,7 @@
             <main class="products-grid-wrapper">
                 <h1 class="page-title" data-i18n="page_all_products">All Products</h1>
 
-                <div class="product-grid independent-grid">
+                <div class="product-grid independent-grid" style="grid-template-columns: repeat(3, 1fr);">
                     <!-- Content populated via JS -->
                 </div>
             </main>

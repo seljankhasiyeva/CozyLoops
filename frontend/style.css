@@ -1424,9 +1424,23 @@ body {
 }
 
 .product-slider .product-card {
-    min-width: 280px;
-    /* Fixed width for slider items */
-    flex-shrink: 0;
+    /* Keep exactly 3 cards visible on desktop within slider viewport */
+    flex: 0 0 calc((100% - 4rem) / 3);
+    min-width: calc((100% - 4rem) / 3);
+}
+
+@media (max-width: 992px) {
+    .product-slider .product-card {
+        flex-basis: calc((100% - 2rem) / 2);
+        min-width: calc((100% - 2rem) / 2);
+    }
+}
+
+@media (max-width: 640px) {
+    .product-slider .product-card {
+        flex-basis: 100%;
+        min-width: 100%;
+    }
 }
 
 .slider-btn {

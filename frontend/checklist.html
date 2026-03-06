@@ -21,7 +21,7 @@
             <li><a href="index.html">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
-            <li><a href="card.html"><span data-i18n="nav_card">Card</span></a></li>
+            <li><a href="cart.html"><span data-i18n="nav_card">Cart</span></a></li>
             <li><a href="checklist.html" class="active">Checklist</a></li>
             <li class="lang-switch">
                 <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
@@ -75,7 +75,7 @@
             const container = document.querySelector('.checklist-container');
             if (!container) return;
 
-            // Login yoxlaması
+            // Login yoxlamasÄ±
             if (!token) {
                 container.innerHTML = '<p style="text-align:center; padding:40px; color:#888;">Please <a href="login.html">login</a> to view your orders.</p>';
                 return;

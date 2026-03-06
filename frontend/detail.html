@@ -25,7 +25,7 @@
             <li><a href="index.html">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
-            <li><a href="card.html"><span data-i18n="nav_card">Card</span> (<span id="bucket-count">0</span>)</a></li>
+            <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html">Checklist</a></li>
             <li class="lang-switch">
                 <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
@@ -46,7 +46,7 @@
         </div>
 
         <div class="pd-info">
-            <h1 id="main-product-title" class="pd-title">Məhsul adı...</h1>
+            <h1 id="main-product-title" class="pd-title">MÃ‰â„¢hsul adÃ„Â±...</h1>
             
             <p id="main-product-price" class="pd-price">0.00 AZN</p>
 
@@ -57,7 +57,7 @@
 
             <div class="pd-description">
                 <h3>Description</h3>
-                <p id="main-product-desc">Yüklənir...</p>
+                <p id="main-product-desc">YÃƒÂ¼klÃ‰â„¢nir...</p>
             </div>
 
             <div class="pd-actions">
@@ -76,11 +76,11 @@
                     <div class="avg-rating">
                         <span class="rating-number">4.5</span>
                         <div class="stars">
-                            <span class="star filled">★</span>
-                            <span class="star filled">★</span>
-                            <span class="star filled">★</span>
-                            <span class="star filled">★</span>
-                            <span class="star half">★</span>
+                            <span class="star filled">&#9733;</span>
+                            <span class="star filled">&#9733;</span>
+                            <span class="star filled">&#9733;</span>
+                            <span class="star filled">&#9733;</span>
+                            <span class="star half">&#9733;</span>
                         </div>
                         <p class="review-count">Based on 12 reviews</p>
                     </div>
@@ -89,83 +89,26 @@
 
             <!-- Reviews List -->
             <div class="reviews-list">
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <h4 class="reviewer-name">Sarah Johnson</h4>
-                            <div class="review-stars">
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                            </div>
-                        </div>
-                        <span class="review-date">2026-02-05</span>
-                    </div>
-                    <p class="review-comment">Absolutely adorable! The quality is outstanding and my daughter loves it.
-                        The craftsmanship is impeccable and you can tell it's made with love.</p>
-                </div>
-
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <h4 class="reviewer-name">Michael Chen</h4>
-                            <div class="review-stars">
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star">★</span>
-                            </div>
-                        </div>
-                        <span class="review-date">2026-02-01</span>
-                    </div>
-                    <p class="review-comment">Great product! Very soft and well-made. The only reason I'm not giving 5
-                        stars is because it took a bit longer to arrive than expected.</p>
-                </div>
-
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <h4 class="reviewer-name">Emma Williams</h4>
-                            <div class="review-stars">
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                                <span class="star filled">★</span>
-                            </div>
-                        </div>
-                        <span class="review-date">2026-01-28</span>
-                    </div>
-                    <p class="review-comment">Perfect gift! The attention to detail is amazing. Highly recommend for
-                        anyone looking for quality handmade items.</p>
-                </div>
+                <!-- Reviews will be loaded here -->
             </div>
 
             <!-- Add Review Form -->
-            <div class="add-review-section">
+            <div class="add-review-section" id="review-form-section" style="display: none;">
                 <h3>Write a Review</h3>
-                <form class="review-form">
-                    <div class="form-group">
-                        <label for="reviewer-name">Your Name</label>
-                        <input type="text" id="reviewer-name" placeholder="Enter your name" required>
-                    </div>
-
+                <form class="review-form" id="review-form">
                     <div class="form-group">
                         <label>Rating</label>
                         <div class="rating-input">
-                            <input type="radio" name="rating" value="5" id="star5">
-                            <label for="star5">★</label>
-                            <input type="radio" name="rating" value="4" id="star4">
-                            <label for="star4">★</label>
-                            <input type="radio" name="rating" value="3" id="star3">
-                            <label for="star3">★</label>
-                            <input type="radio" name="rating" value="2" id="star2">
-                            <label for="star2">★</label>
-                            <input type="radio" name="rating" value="1" id="star1">
-                            <label for="star1">★</label>
+                            <input type="radio" name="rating" value="5" id="star5" required>
+                            <label for="star5">&#9733;</label>
+                            <input type="radio" name="rating" value="4" id="star4" required>
+                            <label for="star4">&#9733;</label>
+                            <input type="radio" name="rating" value="3" id="star3" required>
+                            <label for="star3">&#9733;</label>
+                            <input type="radio" name="rating" value="2" id="star2" required>
+                            <label for="star2">&#9733;</label>
+                            <input type="radio" name="rating" value="1" id="star1" required>
+                            <label for="star1">&#9733;</label>
                         </div>
                     </div>
 
@@ -184,34 +127,8 @@
     <!-- Related Products -->
     <section class="related-products">
         <h2>You Might Also Like</h2>
-        <div class="product-grid">
-            <div class="product-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?q=80&w=400&auto=format&fit=crop"
-                        alt="Beanie">
-                </div>
-                <h3>Woolen Beanie</h3>
-                <p>$30.00</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1616859345639-5668db752c00?q=80&w=400&auto=format&fit=crop"
-                        alt="Yarn">
-                </div>
-                <h3>Organic Cotton Yarn</h3>
-                <p>$12.00</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <div class="card-image">
-                    <img src="https://images.unsplash.com/photo-1582966772630-9d10e54987aa?q=80&w=500&auto=format&fit=crop"
-                        alt="Socks">
-                </div>
-                <h3>Cozy Socks</h3>
-                <p>$25.00</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
+        <div class="product-grid independent-grid" id="related-products-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Related products will be loaded here -->
         </div>
     </section>
 

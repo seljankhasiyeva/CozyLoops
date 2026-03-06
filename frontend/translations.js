@@ -3,7 +3,7 @@ const translations = {
         "nav_home": "Главная",
         "nav_products": "Каталог",
         "nav_card": "Корзина",
-        "nav_luma": "LUMA",
+        "nav_luma": "ЛУМА",
         "nav_checklist": "Заказы",
         "nav_blog": "Блог",
         "btn_login": "Войти",
@@ -54,7 +54,7 @@ const translations = {
         "review_title": "Истории нашего сообщества",
         "footer_address": "Баку, Азербайджан",
         "footer_follow": "Подписаться",
-        "assistant_title": "Помощник LUMA",
+        "assistant_title": "Помощник ЛУМА",
         "assistant_placeholder": "Расскажите мне о ваших идеях..."
     },
     "en": {
@@ -170,7 +170,7 @@ const translations = {
         "review_title": "İcma Hekayələrimiz",
         "footer_address": "Bakı, Azərbaycan",
         "footer_follow": "Bizi İzləyin",
-        "assistant_title": "LUMA Kömə­kçi",
+        "assistant_title": "LUMA Köməkçisi",
         "assistant_placeholder": "Fikirlərinizi söyləyin..."
     }
 };

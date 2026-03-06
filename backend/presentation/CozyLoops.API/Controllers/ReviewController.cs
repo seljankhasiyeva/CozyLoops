@@ -32,7 +32,8 @@ namespace CozyLoops.API.Controllers
                     r.Comment,
                     r.Rating,
                     UserName = r.AppUser.UserName, 
-                    r.ProductId
+                    r.ProductId,
+                    CreatedDate = r.CreatedDate
                 })
                 .ToListAsync();
 
@@ -41,13 +42,14 @@ namespace CozyLoops.API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddReview(Review review)
+        public async Task<IActionResult> AddReview([FromBody] Review review)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null) return Unauthorized();
 
-            review.AppUserId = userId; 
+            review.AppUserId = userId;
+            review.UserName = (await _context.Users.FindAsync(userId))?.UserName ?? "Unknown";
 
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
