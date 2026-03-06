@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | CozyLoops Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">CozyLoops<span>.</span> Admin</div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="index.html"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="products.html"><i class="fas fa-box"></i><span>Products</span></a></li>
+            <li class="nav-item"><a href="orders.html"><i class="fas fa-shopping-bag"></i><span>Orders</span></a></li>
+            <li class="nav-item"><a href="customers.html"><i class="fas fa-users"></i><span>Customers</span></a></li>
+            <li class="nav-item active"><a href="settings.html"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            <li class="nav-item" style="margin-top:auto;">
+                <a href="../index.html"><i class="fas fa-external-link-alt"></i><span>View Site</span></a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="admin-header">
+            <div class="page-title">
+                <h1>Settings</h1>
+                <p>Manage store configuration</p>
+            </div>
+        </header>
+
+        <!-- Shipping Cost Card -->
+        <section class="data-card" style="max-width: 500px;">
+            <div class="card-header">
+                <h2><i class="fas fa-truck" style="margin-right:8px;"></i>Shipping Cost</h2>
+            </div>
+            <div style="padding: 20px 0;">
+                <div class="form-group">
+                    <label style="font-weight:600; display:block; margin-bottom:8px;">Current Shipping Cost (AZN)</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="number"
+                               id="shipping-cost-input"
+                               step="0.01"
+                               min="0"
+                               placeholder="5"
+                               style="padding:10px 15px; border:1px solid #ddd; border-radius:8px; font-size:1rem; width:150px;">
+                        <button onclick="updateShippingCost()" class="btn-primary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                    <p style="color:#888; font-size:0.85rem; margin-top:8px;">
+                        This amount is added to every order at checkout.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Future settings can be added here -->
+    </main>
+
+    <script src="admin-script.js"></script>
+</body>
+
+</html>

@@ -5,26 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Cozy Loops</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
-        rel="stylesheet">
-
-    <!-- CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">CozyLoops<span class="dot">.</span></div>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
-            <li><a href="card.html">Bucket (2)</a></li>
+            <li><a href="card.html">Bucket</a></li>
             <li><a href="checklist.html">Checklist</a></li>
             <li class="lang-switch">
                 <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
@@ -33,29 +27,30 @@
             </li>
         </ul>
         <div class="auth-buttons">
-            <a href="login.html" class="btn-login" data-i18n="btn_login">Login</a>
+            <a href="login.html" class="btn-login">Login</a>
         </div>
     </nav>
 
-    <!-- Register Section -->
     <section class="auth-section">
         <div class="auth-card">
             <h2>Join our Community</h2>
             <p>Create an account to track your orders and checklist.</p>
 
-            <form onsubmit="handleRegister(event)" class="auth-form">
+            <form id="register-form" class="auth-form">
                 <div class="form-group">
-                    <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" placeholder="Jane Doe" required>
+                    <label for="register-fullname">Full Name</label>
+                    <input type="text" id="register-fullname" placeholder="Jane Doe" required>
                 </div>
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="hello@cozyloops.com" required>
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" placeholder="hello@cozyloops.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" placeholder="••••••••" required>
                 </div>
+
+                <p id="register-error" style="color: red; font-size: 14px; margin: 0;"></p>
 
                 <button type="submit" class="auth-btn">Create Account</button>
 
@@ -66,11 +61,8 @@
         </div>
     </section>
 
-    <!-- GSAP Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-
-    <!-- Scripts -->
     <script src="translations.js"></script>
     <script src="script.js"></script>
 </body>

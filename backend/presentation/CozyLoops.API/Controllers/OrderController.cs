@@ -2,7 +2,6 @@
 using CozyLoops.Domain.Entities;
 using CozyLoops.Persistence.Contexts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,41 +30,47 @@ namespace CozyLoops.API.Controllers
                 .FirstOrDefaultAsync(b => b.AppUserId == userId);
 
             if (basket == null || !basket.BasketItems.Any())
-            {
                 return BadRequest("Your basket is empty.");
-            }
+
+            // Shipping cost-u Settings-dən al
+            var shippingSetting = await _context.Settings
+                .FirstOrDefaultAsync(s => s.Key == "ShippingCost");
+            decimal shippingCost = shippingSetting != null
+                ? decimal.Parse(shippingSetting.Value)
+                : 5;
+
+            var subtotal = basket.BasketItems.Sum(item => item.Quantity * item.Product.Price);
 
             var order = new Order
             {
                 AppUserId = userId,
                 Address = address,
                 OrderDate = DateTime.Now,
-                OrderNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(), 
-                TotalPrice = basket.BasketItems.Sum(item => item.Quantity * item.Product.Price),
+                OrderNumber = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                TotalPrice = subtotal + shippingCost, // shipping daxildir
                 OrderItems = new List<OrderItem>()
             };
 
             foreach (var item in basket.BasketItems)
             {
-                var orderItem = new OrderItem
+                order.OrderItems.Add(new OrderItem
                 {
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    UnitPrice = item.Product.Price 
-                };
-                order.OrderItems.Add(orderItem);
+                    UnitPrice = item.Product.Price
+                });
             }
 
             _context.Orders.Add(order);
-
             _context.BasketItems.RemoveRange(basket.BasketItems);
-
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
                 message = "Order placed successfully!",
                 orderNumber = order.OrderNumber,
+                subtotal = subtotal,
+                shippingCost = shippingCost,
                 total = order.TotalPrice
             });
         }
@@ -86,19 +91,20 @@ namespace CozyLoops.API.Controllers
         }
 
         [HttpGet("all-orders")]
+        [Authorize]
         public async Task<IActionResult> GetAllOrders()
         {
             var orders = await _context.Orders
-                .Include(o => o.AppUser) 
+                .Include(o => o.AppUser)
                 .OrderByDescending(o => o.OrderDate)
                 .Select(o => new {
                     o.Id,
                     o.OrderNumber,
-                    CustomerName = o.AppUser.UserName,
+                    customerName = o.AppUser.UserName,
                     o.TotalPrice,
                     o.OrderDate,
-                    Status = "Pending", 
-                    ItemCount = o.OrderItems.Count
+                    status = "Pending",
+                    itemCount = o.OrderItems.Count
                 })
                 .ToListAsync();
 
@@ -106,13 +112,14 @@ namespace CozyLoops.API.Controllers
         }
 
         [HttpGet("stats")]
+        [Authorize]
         public async Task<IActionResult> GetOrderStats()
         {
             var stats = new
             {
                 totalSales = await _context.Orders.SumAsync(o => o.TotalPrice),
                 totalOrders = await _context.Orders.CountAsync(),
-                totalCustomers = await _context.Users.CountAsync() 
+                totalCustomers = await _context.Users.CountAsync()
             };
 
             return Ok(stats);

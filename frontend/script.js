@@ -2,8 +2,8 @@
 // COZY LOOPS - ALL-IN-ONE SCRIPT
 // ==========================================
 const BASE_URL = "http://localhost:5245";
+const API_BASE_URL = `${BASE_URL}/api`;
 
-// Şəkil yolunu və xətaları idarə edən funksiya
 function getImageUrl(url) {
     if (!url) return 'images/placeholder.webp';
     if (url.startsWith('http')) return url;
@@ -12,28 +12,154 @@ function getImageUrl(url) {
 }
 
 // ==========================================
-// 1. MƏHSULLARIN YÜKLƏNMƏSİ (INDEX & PRODUCTS)
+// 1. AUTH FUNCTIONS
+// ==========================================
+
+function saveToken(token) {
+    localStorage.setItem("token", token);
+    localStorage.setItem("cozyloops_token", token);
+}
+
+function getToken() {
+    return localStorage.getItem("token");
+}
+
+function removeToken() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("cozyloops_token");
+    localStorage.removeItem("cozyloops_user");
+    localStorage.removeItem("userName");
+}
+
+function saveUser(user) {
+    localStorage.setItem("cozyloops_user", JSON.stringify(user));
+    localStorage.setItem("userName", user.userName);
+}
+
+function getUser() {
+    const user = localStorage.getItem("cozyloops_user");
+    return user ? JSON.parse(user) : null;
+}
+
+function isLoggedIn() {
+    return !!getToken();
+}
+
+async function register(fullName, email, password) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fullName, email, password }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            return { success: true, message: data.message || "Registration successful!" };
+        } else {
+            const errors = Array.isArray(data)
+                ? data.map((e) => e.description).join(" ")
+                : data.message || "Registration failed.";
+            return { success: false, message: errors };
+        }
+    } catch (error) {
+        console.error("Register error:", error);
+        return { success: false, message: "Could not connect to the server." };
+    }
+}
+
+async function login(email, password) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            saveToken(data.token);
+            saveUser({ userName: data.userName, expiration: data.expiration });
+            return { success: true, message: data.message, userName: data.userName };
+        } else {
+            return { success: false, message: data.message || "Login failed." };
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        return { success: false, message: "Could not connect to the server." };
+    }
+}
+
+window.logout = function () {
+    localStorage.clear();
+    window.location.href = 'index.html';
+};
+
+async function authFetch(url, options = {}) {
+    const token = getToken();
+    const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+    };
+    const response = await fetch(url, { ...options, headers });
+    if (response.status === 401) {
+        window.logout();
+        throw new Error("Session expired. Please log in again.");
+    }
+    return response;
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email')?.value;
+    const password = document.getElementById('login-password')?.value;
+    const errorEl = document.getElementById('login-error');
+    if (!email || !password) return;
+    const result = await login(email, password);
+    if (result.success) {
+        window.location.href = 'index.html';
+    } else {
+        if (errorEl) errorEl.innerText = result.message;
+        else alert(result.message);
+    }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('register-fullname')?.value;
+    const email = document.getElementById('register-email')?.value;
+    const password = document.getElementById('register-password')?.value;
+    const errorEl = document.getElementById('register-error');
+    if (!fullName || !email || !password) return;
+    const result = await register(fullName, email, password);
+    if (result.success) {
+        alert("Registration successful! Please log in.");
+        window.location.href = 'login.html';
+    } else {
+        if (errorEl) errorEl.innerText = result.message;
+        else alert(result.message);
+    }
+}
+
+// ==========================================
+// 2. PRODUCTS
 // ==========================================
 
 async function loadProducts() {
     try {
         const response = await fetch(`${BASE_URL}/api/Product`);
         if (!response.ok) throw new Error("API Connection error");
-        let products = await response.json();
+        const products = await response.json();
 
-        // 1a. Index Slider-ləri üçün (New Arrivals & Others)
         const newArrivalsSlider = document.getElementById('new-arrivals-slider');
         const othersSlider = document.getElementById('others-slider');
 
         if (newArrivalsSlider || othersSlider) {
             const newArrivals = products.slice(-4).reverse();
             const others = products.length > 4 ? products.slice(0, products.length - 4) : [];
-
             if (newArrivalsSlider) renderToContainer(newArrivalsSlider, newArrivals);
             if (othersSlider) renderToContainer(othersSlider, others);
         }
 
-        // 1b. Products Grid (Məhsullar səhifəsi) üçün
         const productGrid = document.querySelector('.product-grid.independent-grid');
         if (productGrid) renderToContainer(productGrid, products);
 
@@ -42,7 +168,6 @@ async function loadProducts() {
     }
 }
 
-// Kartları generaciya edən tək funksiya (Ziq-zaq problemini həll edir)
 function renderToContainer(container, productList) {
     if (!container) return;
     container.innerHTML = productList.map(product => `
@@ -61,106 +186,128 @@ function renderToContainer(container, productList) {
 }
 
 // ==========================================
-// 2. SƏBƏT VƏ ORDER MƏNTİQİ
+// 3. BASKET
 // ==========================================
+
+// Helper: backend həm basketItems həm BasketItems qaytara bilər
+function getBasketItems(basket) {
+    return basket.basketItems || basket.BasketItems || [];
+}
 
 async function loadBasketItems() {
     const tbody = document.querySelector(".cart-table tbody");
-    const subtotalEl = document.querySelector(".summary-row span:last-child"); // Subtotal element
-    const totalEl = document.querySelector(".summary-row.total span:last-child"); // Total element
-    const token = localStorage.getItem('token');
+    const subtotalEl = document.querySelector(".summary-row span:last-child");
+    const totalEl = document.querySelector(".summary-row.total span:last-child");
+    const token = getToken();
 
-    if (!tbody || !token) return;
+    if (!tbody) return;
+
+    if (!token) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Please <a href="login.html">login</a> to view your basket.</td></tr>`;
+        return;
+    }
 
     try {
         const response = await fetch(`${BASE_URL}/api/Basket`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        if (response.status === 401) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Session expired. Please <a href="login.html">login again</a>.</td></tr>`;
+            return;
+        }
+
+        if (response.status === 404) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Your basket is empty.</td></tr>`;
+            return;
+        }
+
         if (response.ok) {
             const basket = await response.json();
-            const items = basket.basketItems || [];
+            const items = getBasketItems(basket);
 
             if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Your bucket is empty.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px;">Your basket is empty.</td></tr>`;
                 return;
             }
 
             let subtotal = 0;
             tbody.innerHTML = items.map(item => {
-                const itemTotal = item.product.price * item.quantity;
+                const product = item.product || item.Product;
+                const productId = item.productId || item.ProductId;
+                const quantity = item.quantity || item.Quantity;
+                const itemTotal = product.price * quantity;
                 subtotal += itemTotal;
-                
-                // Using your exact HTML structure from card.html
                 return `
                 <tr>
                     <td>
                         <div class="cart-product-info">
-                            <img src="${item.product.imageUrl || 'images/placeholder.webp'}" alt="${item.product.name}">
-                            <div><h3>${item.product.name}</h3></div>
+                            <img src="${getImageUrl(product.imageUrl)}" alt="${product.name}" onerror="this.src='images/placeholder.webp'">
+                            <div><h3>${product.name}</h3></div>
                         </div>
                     </td>
-                    <td>$${item.product.price}.00</td>
+                    <td>${product.price}.00 AZN</td>
                     <td>
                         <div class="qty-control">
-                            <button onclick="updateQuantity(${item.productId}, ${item.quantity - 1})">-</button>
-                            <span>${item.quantity}</span>
-                            <button onclick="updateQuantity(${item.productId}, ${item.quantity + 1})">+</button>
+                            <button onclick="updateQuantity(${productId}, ${quantity - 1})">-</button>
+                            <span>${quantity}</span>
+                            <button onclick="updateQuantity(${productId}, ${quantity + 1})">+</button>
                         </div>
                     </td>
-                    <td>$${itemTotal}.00</td>
-                    <td><button class="remove-btn" onclick="removeItem(${item.productId})">×</button></td>
+                    <td>${itemTotal}.00 AZN</td>
+                    <td><button class="remove-btn" onclick="removeItem(${productId})">×</button></td>
                 </tr>`;
             }).join('');
 
-            // Update Summary
-            if (subtotalEl) subtotalEl.innerText = `$${subtotal}.00`;
-            if (totalEl) totalEl.innerText = `$${subtotal + 5}.00`; // Assuming $5 shipping
+            if (subtotalEl) subtotalEl.innerText = `${subtotal}.00 AZN`;
+            if (totalEl) totalEl.innerText = `${subtotal + 5}.00 AZN`;
         }
     } catch (error) {
         console.error("Error loading basket:", error);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:red;">Error loading basket.</td></tr>`;
     }
 }
 
 async function addToCart(productId) {
-    const token = localStorage.getItem('token');
-    
+    const token = getToken();
+
     if (!token) {
-        alert("Please login to add items to your bucket!");
+        alert("Please login to add items to your basket!");
         window.location.href = 'login.html';
         return;
     }
 
     try {
-        // Matches your C# Controller: AddItemToBasket(int productId, int quantity)
         const response = await fetch(`${BASE_URL}/api/Basket/add-item?productId=${productId}&quantity=1`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
         if (response.ok) {
-            alert("Product added to bucket!");
-            // Update the count in the navbar immediately
-            updateBucketCount(); 
-            
-            // If we are currently on the card.html page, refresh the list
+            alert("Product added to basket!");
+            updateBucketCount();
             if (window.location.pathname.includes('card.html')) {
                 loadBasketItems();
             }
+        } else if (response.status === 401) {
+            alert("Session expired. Please login again.");
+            window.location.href = 'login.html';
         } else {
             const error = await response.text();
-            console.error("Server responded with error:", error);
+            console.error("Server error:", error);
+            alert("Could not add item. Please try again.");
         }
     } catch (error) {
         console.error("Network error:", error);
+        alert("Could not connect to server.");
     }
 }
 
 async function updateBucketCount() {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (!token) return;
     try {
         const response = await fetch(`${BASE_URL}/api/Basket`, {
@@ -168,115 +315,116 @@ async function updateBucketCount() {
         });
         if (response.ok) {
             const data = await response.json();
-            const count = (data.basketItems || []).reduce((sum, i) => sum + i.quantity, 0);
-            const bucketLinks = document.querySelectorAll('a[href="card.html"]');
-            bucketLinks.forEach(link => link.innerText = `Bucket (${count})`);
+            const items = getBasketItems(data);
+            const count = items.reduce((sum, i) => sum + (i.quantity || i.Quantity || 0), 0);
+            document.querySelectorAll('a[href="card.html"]').forEach(link => {
+                link.innerText = `Bucket (${count})`;
+            });
         }
-    } catch (e) { console.log("Count update failed"); }
-}
-
-// ==========================================
-// 3. AUTH VƏ DİL
-// ==========================================
-
-function checkAuth() {
-    const token = localStorage.getItem('token');
-    const userName = localStorage.getItem('userName');
-    const authBox = document.querySelector('.auth-buttons');
-    if (token && userName && authBox) {
-        authBox.innerHTML = `
-            <span class="user-greeting">Hi, ${userName}</span>
-            <a href="#" onclick="logout()" class="logout-link" style="color:#ff4d4d; margin-left:15px; font-weight:500;">Logout</a>
-        `;
+    } catch (e) {
+        console.log("Count update failed");
     }
 }
 
-window.logout = function() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-}
-
-window.setLanguage = function(lang) {
-    if (typeof translations === 'undefined') return;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang] && translations[lang][key]) el.innerHTML = translations[lang][key];
-    });
-    localStorage.setItem('cozy_lang', lang);
-}
-
-// 2b. UPDATE QUANTITY
-window.updateQuantity = async function(productId, newQty) {
-    if (newQty < 1) return removeItem(productId);
-    const token = localStorage.getItem('token');
-    
+window.updateQuantity = async function (productId, newQty) {
+    if (newQty < 1) return window.removeItem(productId);
+    const token = getToken();
     try {
-        // Bu hissə sənin backend-dəki update endpoint-inə uyğun olmalıdır
         const response = await fetch(`${BASE_URL}/api/Basket/update-quantity?productId=${productId}&quantity=${newQty}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (response.ok) {
-            loadBasketItems(); // Cədvəli yenidən yüklə
-            updateBucketCount(); // Navbardakı rəqəmi yenilə
+            loadBasketItems();
+            updateBucketCount();
         }
     } catch (error) { console.error("Update error:", error); }
-}
+};
 
-async function handleCheckout() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
+window.removeItem = async function (productId) {
+    if (!confirm("Are you sure you want to remove this item?")) return;
+    const token = getToken();
     try {
-        // Backend-dəki Order controller-inə uyğun:
-        const response = await fetch(`${BASE_URL}/api/Order/checkout?address=Home`, {
+        const response = await fetch(`${BASE_URL}/api/Basket/remove-item?productId=${productId}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (response.ok) {
-            alert("Order placed successfully!");
-            window.location.href = 'checklist.html';
-        } else {
-            alert("Something went wrong during checkout.");
-        }
-    } catch (error) { console.error("Checkout error:", error); }
-}
-
-// 2c. REMOVE ITEM
-window.removeItem = async function(productId) {
-    if (!confirm("Are you sure you want to remove this item?")) return;
-    const token = localStorage.getItem('token');
-
-    try {
-        const response = await fetch(`${BASE_URL}/api/Basket/remove-item?productId=${productId}`, {
-            method: 'POST', // Və ya DELETE (backend-dən asılıdır)
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
         if (response.ok) {
             loadBasketItems();
             updateBucketCount();
         }
     } catch (error) { console.error("Remove error:", error); }
+};
+
+async function handleCheckout() {
+    const token = getToken();
+    if (!token) {
+        alert("Please login to checkout.");
+        window.location.href = 'login.html';
+        return;
+    }
+    try {
+        const response = await fetch(`${BASE_URL}/api/Order/checkout?address=Home`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            alert(`Order placed! Order #${data.orderNumber} | Total: ${data.total}.00 AZN`);
+            window.location.href = 'checklist.html';
+        } else {
+            const err = await response.json();
+            alert(err.message || "Something went wrong during checkout.");
+        }
+    } catch (error) { console.error("Checkout error:", error); }
 }
 
 // ==========================================
-// 4. BAŞLATMA (INIT)
+// 4. NAVBAR AUTH CHECK
+// ==========================================
+
+function checkAuth() {
+    const token = getToken();
+    const userName = localStorage.getItem('userName');
+    const authBox = document.querySelector('.auth-buttons');
+    if (token && userName && authBox) {
+        authBox.innerHTML = `
+            <span class="user-greeting">Hi, ${userName}</span>
+            <a href="#" onclick="window.logout()" class="logout-link" style="color:#ff4d4d; margin-left:15px; font-weight:500;">Logout</a>
+        `;
+    }
+}
+
+window.setLanguage = function (lang) {
+    if (typeof translations === 'undefined') return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang]?.[key]) el.innerHTML = translations[lang][key];
+    });
+    localStorage.setItem('cozy_lang', lang);
+};
+
+// ==========================================
+// 5. INIT
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
     checkAuth();
     loadProducts();
     updateBucketCount();
+
     if (document.querySelector(".cart-table")) {
         loadBasketItems();
     }
-    
-    // Detal səhifəsi üçündürsə
+
+    const regForm = document.getElementById('register-form');
+    if (regForm) regForm.addEventListener('submit', handleRegister);
+
+    const logForm = document.getElementById('login-form');
+    if (logForm) logForm.addEventListener('submit', handleLogin);
+
     if (document.getElementById('main-product-img')) {
-        const loadProductDetail = async () => {
+        (async () => {
             const id = new URLSearchParams(window.location.search).get('id');
             if (!id) return;
             const res = await fetch(`${BASE_URL}/api/Product/${id}`);
@@ -289,14 +437,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const btn = document.getElementById('main-add-btn');
                 if (btn) btn.onclick = () => addToCart(p.id);
             }
-        };
-        loadProductDetail();
+        })();
     }
 
     const savedLang = localStorage.getItem('cozy_lang') || 'en';
     setTimeout(() => setLanguage(savedLang), 150);
 });
 
-// Slider Naviqasiyası
+// Slider Navigation
 window.slideLeft = (id) => document.getElementById(id)?.scrollBy({ left: -300, behavior: 'smooth' });
 window.slideRight = (id) => document.getElementById(id)?.scrollBy({ left: 300, behavior: 'smooth' });
