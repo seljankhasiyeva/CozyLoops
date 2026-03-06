@@ -128,7 +128,7 @@ async function handleLogin(e) {
     if (!email || !password) return;
     const result = await login(email, password);
     if (result.success) {
-        // Admin isə admin panelə yönləndir
+        // Admin isÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ admin panelÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ yÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nlÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ndir
         if (result.isAdmin) {
             window.location.href = 'admin/index.html';
         } else {
@@ -171,8 +171,8 @@ async function loadProducts() {
         const othersSlider = document.getElementById('others-slider');
 
         if (newArrivalsSlider || othersSlider) {
-            const newArrivals = products.slice(-4).reverse();
-            const others = products.length > 4 ? products.slice(0, products.length - 4) : [];
+            const newArrivals = products.slice(-3).reverse();
+            const others = products.length > 3 ? products.slice(0, products.length - 3) : [];
             if (newArrivalsSlider) renderToContainer(newArrivalsSlider, newArrivals);
             if (othersSlider) renderToContainer(othersSlider, others);
         }
@@ -288,7 +288,7 @@ async function loadBasketItems() {
                         </div>
                     </td>
                     <td>${itemTotal}.00 AZN</td>
-                    <td><button class="remove-btn" onclick="removeItem(${productId})">×</button></td>
+                    <td><button class="remove-btn" onclick="removeItem(${productId})">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button></td>
                 </tr>`;
             }).join('');
 
@@ -320,7 +320,7 @@ async function addToCart(productId) {
         if (response.ok) {
             alert("Product added to basket!");
             updateBucketCount();
-            if (window.location.pathname.includes('card.html')) {
+            if (window.location.pathname.includes('cart.html')) {
                 loadBasketItems();
             }
         } else if (response.status === 401) {
@@ -448,7 +448,13 @@ function initAssistant() {
     const assistantBtn = document.createElement('button');
     assistantBtn.id = 'luma-assistant-btn';
     assistantBtn.className = 'luma-assistant-btn';
-    assistantBtn.innerHTML = '🧶';
+    assistantBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="7.8" fill="#f3dec7" stroke="#9b6b43" stroke-width="1.6"></circle>
+            <path d="M7.2 12c1.2-1.6 3.4-2.6 5.6-2.6 1.8 0 3.2.6 4.1 1.5M6.8 14.8c1.2 1.1 3 1.8 5 1.8 2.1 0 3.8-.7 5-1.9M10.2 7.7c-.7 1.3-.8 2.8-.4 4.1.5 1.6 1.8 2.9 3.5 3.4" fill="none" stroke="#9b6b43" stroke-width="1.6" stroke-linecap="round"></path>
+            <path d="M18.6 17.8l2.7 2.4" fill="none" stroke="#d7b38e" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+    `;
     assistantBtn.title = 'LUMA Assistant';
     assistantBtn.onclick = openAssistant;
     document.body.appendChild(assistantBtn);
@@ -484,14 +490,20 @@ function initAssistant() {
                 width: 60px;
                 height: 60px;
                 border-radius: 50%;
-                background: var(--accent-color);
+                background: #211b19;
                 color: white;
                 border: none;
-                font-size: 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 cursor: pointer;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 transition: all 0.3s;
                 z-index: 999;
+            }
+            .luma-assistant-btn svg {
+                width: 32px;
+                height: 32px;
             }
             .luma-assistant-btn:hover {
                 transform: scale(1.1);
@@ -520,7 +532,7 @@ function initAssistant() {
             }
             .luma-header {
                 padding: 1rem;
-                background: var(--accent-color);
+                background: #211b19;
                 color: white;
                 border-radius: 12px 12px 0 0;
                 display: flex;
@@ -552,7 +564,7 @@ function initAssistant() {
                 word-wrap: break-word;
             }
             .luma-message.user {
-                background: var(--accent-color);
+                background: #211b19;
                 color: white;
                 margin-left: auto;
             }
@@ -576,7 +588,7 @@ function initAssistant() {
                 font-family: var(--font-body);
             }
             .luma-send-btn {
-                background: var(--accent-color);
+                background: #211b19;
                 color: white;
                 border: none;
                 padding: 0.5rem 1rem;
@@ -672,6 +684,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const btn = document.getElementById('main-add-btn');
                 if (btn) btn.onclick = () => addToCart(p.id);
                 loadReviews(p.id);
+                loadRelatedProducts(p.categoryId, p.id);
+                updateReviewFormVisibility();
+                
+                // Attach review form handler
+                const reviewForm = document.getElementById('review-form');
+                if (reviewForm) {
+                    reviewForm.addEventListener('submit', (e) => handleReviewSubmit(e, id));
+                }
             }
         })();
     }
@@ -716,7 +736,7 @@ async function loadReviews(productId) {
                         <div class="reviewer-info">
                             <h4 class="reviewer-name">${escapeHtml(review.userName || 'Anonymous')}</h4>
                             <div class="review-stars">
-                                ${Array(5).fill(0).map((_, i) => `<span class="star ${i < review.rating ? 'filled' : ''}">★</span>`).join('')}
+                                ${Array(5).fill(0).map((_, i) => `<span class="star ${i < review.rating ? 'filled' : ''}">&#9733;</span>`).join('')}
                             </div>
                         </div>
                         <span class="review-date">${new Date(review.createdDate).toLocaleDateString()}</span>
@@ -727,5 +747,99 @@ async function loadReviews(productId) {
         }
     } catch (error) {
         console.error('Error loading reviews:', error);
+    }
+}
+
+// Handle review form submission
+async function handleReviewSubmit(event, productId) {
+    event.preventDefault();
+    
+    if (!getToken()) {
+        alert('Please login to submit a review.');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const rating = document.querySelector('input[name="rating"]:checked');
+    const comment = document.getElementById('review-comment').value.trim();
+    
+    if (!rating) {
+        alert('Please select a rating.');
+        return;
+    }
+    
+    if (!comment) {
+        alert('Please write a review.');
+        return;
+    }
+    
+    try {
+        const response = await authFetch(`${BASE_URL}/api/Review`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                productId: parseInt(productId),
+                rating: parseInt(rating.value),
+                comment: comment
+            })
+        });
+        
+        if (response.ok) {
+            alert('Review submitted successfully!');
+            document.getElementById('review-form').reset();
+            loadReviews(productId); // Reload reviews
+        } else {
+            const error = await response.text();
+            alert('Failed to submit review: ' + error);
+        }
+    } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Error submitting review. Please try again.');
+    }
+}
+
+// Load related products from the same category
+async function loadRelatedProducts(categoryId, currentProductId) {
+    const grid = document.getElementById('related-products-grid');
+    if (!grid) return;
+
+    try {
+        const response = await fetch(`${BASE_URL}/api/Product`);
+        if (response.ok) {
+            const products = await response.json();
+            const related = products.filter(p => p.categoryId === categoryId && p.id !== currentProductId).slice(0, 3);
+            
+            if (related.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; padding:2rem; color:#999;">No related products found.</p>';
+                return;
+            }
+            
+            grid.innerHTML = related.map(product => `
+                <div class="product-card" onclick="window.location.href='detail.html?id=${product.id}'">
+                    <div class="card-image">
+                        <img src="${getImageUrl(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='images/placeholder.webp'">
+                    </div>
+                    <h3>${escapeHtml(product.name)}</h3>
+                    <p>${product.price}.00 AZN</p>
+                    <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading related products:', error);
+    }
+}
+
+// Show/hide review form based on login status
+function updateReviewFormVisibility() {
+    const formSection = document.getElementById('review-form-section');
+    const user = getUser();
+    
+    if (formSection) {
+        if (user) {
+            formSection.style.display = 'block';
+        } else {
+            formSection.style.display = 'none';
+        }
     }
 }
