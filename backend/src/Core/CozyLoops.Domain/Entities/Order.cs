@@ -16,5 +16,6 @@ namespace CozyLoops.Domain.Entities
         public string AppUserId { get; set; } = string.Empty;
         public AppUser AppUser { get; set; } = null!;
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
     }
 }

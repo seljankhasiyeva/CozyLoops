@@ -1737,3 +1737,68 @@ body {
         display: flex;
     }
 }
+
+.category-filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.category-filter-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.category-filter-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.category-filter-list::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
+}
+
+.cat-chip {
+    padding: 0.6rem 1rem;
+    border: 1px solid #e0d8d0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    background: #fff;
+    color: var(--text-color);
+    text-align: left;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.cat-chip:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.cat-chip.active {
+    background: var(--text-color);
+    color: #fff;
+    border-color: var(--text-color);
+}
+
+.cat-loading {
+    font-size: 0.85rem;
+    color: #999;
+    padding: 0.5rem 0;
+}
+html {
+    visibility: hidden;
+}
+.filters-sidebar {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.filters-sidebar.ready {
+    opacity: 1;
+}

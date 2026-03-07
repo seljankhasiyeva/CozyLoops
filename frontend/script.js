@@ -177,11 +177,101 @@ async function loadProducts() {
         }
 
         const productGrid = document.querySelector('.product-grid.independent-grid');
-        if (productGrid) renderToContainer(productGrid, products);
+        if (productGrid) {
+            window._allProducts = products;
+            renderToContainer(productGrid, products);
+            setupFilters(products);
+        }
 
     } catch (error) {
         console.error("LoadProducts error:", error);
     }
+}
+
+function setupFilters(products) {
+    const categoryContainer = document.getElementById('category-filters');
+    const priceRange = document.getElementById('price-range');
+    const priceLabel = document.getElementById('price-max-label');
+    const productGrid = document.querySelector('.product-grid.independent-grid');
+
+    if (!productGrid) return;
+
+    // Max qiyməti məhsullara görə təyin et
+    const maxProductPrice = Math.max(...products.map(p => p.price));
+    if (priceRange) {
+        priceRange.max = maxProductPrice;
+        priceRange.value = maxProductPrice;
+        if (priceLabel) priceLabel.textContent = `${maxProductPrice} AZN`;
+    }
+
+    // Seçili kateqoriyaları saxla
+    const selectedCats = new Set();
+
+    function applyFilters() {
+        const maxPrice = priceRange ? parseInt(priceRange.value) : 9999;
+        let filtered = window._allProducts;
+
+        if (selectedCats.size > 0) {
+            filtered = filtered.filter(p => selectedCats.has(p.categoryId));
+        }
+
+        filtered = filtered.filter(p => p.price <= maxPrice);
+
+        if (filtered.length === 0) {
+            productGrid.innerHTML = '<p style="text-align:center; padding:3rem; color:#999; grid-column:1/-1;">No products found.</p>';
+        } else {
+            renderToContainer(productGrid, filtered);
+        }
+    }
+
+    // Kateqoriyaları API-dən çək
+    // Kateqoriyaları API-dən bir dəfəyə çək
+    if (categoryContainer) {
+        const uniqueCategoryIds = [...new Set(products.map(p => p.categoryId).filter(Boolean))];
+
+        fetch(`${BASE_URL}/api/Category`)
+            .then(r => r.json())
+            .then(allCategories => {
+                // Yalnız məhsullarda olan kateqoriyaları götür, adı boş olanları atla
+                const filtered = allCategories.filter(cat =>
+                    uniqueCategoryIds.includes(cat.id) && cat.name && cat.name.trim() !== '' && cat.name !== 'string'
+                );
+
+                categoryContainer.innerHTML = filtered.map(cat => `
+                <button class="cat-chip" data-id="${cat.id}">${cat.name}</button>
+            `).join('');
+
+                categoryContainer.querySelectorAll('.cat-chip').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.dataset.id);
+                        if (selectedCats.has(id)) {
+                            selectedCats.delete(id);
+                            btn.classList.remove('active');
+                        } else {
+                            selectedCats.add(id);
+                            btn.classList.add('active');
+                        }
+                        applyFilters();
+                    });
+                });
+            })
+            .catch(() => {
+                categoryContainer.innerHTML = '<p style="color:#999; font-size:0.85rem;">Could not load categories.</p>';
+            });
+    }
+
+    // Price filter
+    // Price filter
+    if (priceRange) {
+        priceRange.addEventListener('input', () => {
+            if (priceLabel) priceLabel.textContent = `${priceRange.value} AZN`;
+            applyFilters();
+        });
+    }
+
+    // Hər şey hazır olduqda sidebar-ı göstər
+    const sidebar = document.querySelector('.filters-sidebar');
+    if (sidebar) sidebar.classList.add('ready');  // ← bu sətri əlavə et
 }
 
 function renderToContainer(container, productList) {
@@ -271,24 +361,24 @@ async function loadBasketItems() {
                 const itemTotal = product.price * quantity;
                 subtotal += itemTotal;
                 return `
-                <tr>
-                    <td>
-                        <div class="cart-product-info">
-                            <img src="${getImageUrl(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='images/placeholder.webp'">
-                            <div><h3>${escapeHtml(product.name)}</h3></div>
-                        </div>
-                    </td>
-                    <td>${product.price}.00 AZN</td>
-                    <td>
-                        <div class="qty-control">
-                            <button onclick="updateQuantity(${productId}, ${quantity - 1})">-</button>
-                            <span>${quantity}</span>
-                            <button onclick="updateQuantity(${productId}, ${quantity + 1})">+</button>
-                        </div>
-                    </td>
-                    <td>${itemTotal}.00 AZN</td>
-                    <td><button class="remove-btn" onclick="removeItem(${productId})">&times;</button></td>
-                </tr>`;
+<tr>
+    <td>
+        <div class="cart-product-info">
+            <img src="${getImageUrl(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='images/placeholder.webp'">
+            <div><h3>${escapeHtml(product.name)}</h3></div>
+        </div>
+    </td>
+    <td>${product.price}.00 AZN</td>
+    <td>
+        <div class="qty-control">
+            <button class="qty-btn" onclick="updateQuantity(${productId}, ${quantity - 1})">−</button>
+            <input type="number" value="${quantity}" min="1" readonly>
+            <button class="qty-btn" onclick="updateQuantity(${productId}, ${quantity + 1})">+</button>
+        </div>
+    </td>
+    <td>${itemTotal}.00 AZN</td>
+    <td><button class="remove-btn" onclick="removeItem(${productId})">Remove</button></td>
+</tr>`;
             }).join('');
 
             if (subtotalEl) subtotalEl.textContent = `${subtotal}.00 AZN`;
@@ -739,7 +829,6 @@ window.sendLumaMessage = function () {
 // 5. INIT
 // ==========================================
 
-document.documentElement.style.visibility = 'hidden';
 document.addEventListener("DOMContentLoaded", () => {
     initAssistant();
     checkAuth();

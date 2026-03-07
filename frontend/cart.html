@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Bucket | Cozy Loops</title>
+    <title>Your Cart | Cozy Loops</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,9 +25,10 @@
             <li><a href="index.html" data-i18n="nav_home">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
-            <li><a href="cart.html" class="active"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
+            <li><a href="cart.html" class="active"><span data-i18n="nav_card">Cart</span> (<span
+                        id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
-                                    <li class="lang-switch">
+            <li class="lang-switch">
                 <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
                 <div class="lang-menu" role="menu">
                     <button class="lang-option" type="button" data-lang="az">AZE</button>
@@ -49,14 +50,17 @@
             <!-- Cart Items -->
             <div class="cart-items">
                 <!-- Header -->
-                <div class="cart-header">
-                    <span data-i18n="table_product">Product</span>
-                    <span data-i18n="table_price">Price</span>
-                    <span data-i18n="table_qty">Quantity</span>
-                    <span data-i18n="table_total">Total</span>
-                    <span data-i18n="table_action">Action</span>
-                </div>
+
                 <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="table_product">Product</th>
+                            <th data-i18n="table_price">Price</th>
+                            <th data-i18n="table_qty">Quantity</th>
+                            <th data-i18n="table_total">Total</th>
+                            <th data-i18n="table_action">Action</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         <!-- Items will be loaded dynamically by script.js -->
                         <tr>
@@ -82,7 +86,8 @@
                     <span>Total</span>
                     <span id="total-amount">0.00 AZN</span>
                 </div>
-                <button class="checkout-btn" onclick="handleCheckout()" data-i18n="btn_checkout">Proceed to Checkout</button>
+                <button class="checkout-btn" onclick="handleCheckout()" data-i18n="btn_checkout">Proceed to
+                    Checkout</button>
             </div>
         </div>
     </section>
