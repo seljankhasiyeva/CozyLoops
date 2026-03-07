@@ -27,7 +27,7 @@
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
             <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
-                                    <li class="lang-switch">
+            <li class="lang-switch">
                 <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
                 <div class="lang-menu" role="menu">
                     <button class="lang-option" type="button" data-lang="az">AZE</button>
@@ -50,34 +50,18 @@
                 <h3 class="filter-title" data-i18n="filter_title">Filters</h3>
 
                 <div class="filter-group">
-                    <h4 data-i18n="filter_collections">Collections</h4>
-                    <label class="filter-option">
-                        <input type="checkbox"> <span data-i18n="cat_amigurumi">Amigurumi</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="checkbox"> <span data-i18n="cat_wearables">Wearables</span>
-                    </label>
-                    <label class="filter-option">
-                        <input type="checkbox"> <span data-i18n="cat_accessories">Accessories</span>
-                    </label>
-                </div>
-
-                <div class="filter-group">
-                    <h4 data-i18n="filter_price">Price</h4>
-                    <input type="range" min="0" max="200" class="price-range">
-                    <div class="price-labels">
-                        <span>$0</span>
-                        <span>$200+</span>
+                    <h4 data-i18n="filter_collections">Categories</h4>
+                    <div id="category-filters" class="category-filter-list">
+                        <div class="cat-loading">Loading...</div>
                     </div>
                 </div>
 
                 <div class="filter-group">
-                    <h4 data-i18n="filter_color">Color</h4>
-                    <div class="color-options">
-                        <span class="color-dot" style="background: #F4E4D8;"></span> <!-- Beige -->
-                        <span class="color-dot" style="background: #6B4E3D;"></span> <!-- Brown -->
-                        <span class="color-dot" style="background: #E6E6FA;"></span> <!-- Lavender -->
-                        <span class="color-dot" style="background: #C08552;"></span> <!-- Bronze -->
+                    <h4 data-i18n="filter_price">Price</h4>
+                    <input type="range" min="0" max="200" class="price-range" id="price-range">
+                    <div class="price-labels">
+                        <span>0 AZN</span>
+                        <span id="price-max-label">200 AZN</span>
                     </div>
                 </div>
             </aside>

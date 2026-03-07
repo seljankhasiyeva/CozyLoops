@@ -113,51 +113,75 @@
                     return;
                 }
 
-                container.innerHTML = orders.map(order => `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <div>
-                                <h3>Order #${order.orderNumber}</h3>
-                                <span class="order-date">Placed on ${new Date(order.orderDate).toLocaleDateString()}</span>
-                            </div>
-                            <span class="order-type standard">Status: Pending</span>
-                        </div>
+                const statusSteps = {
+    'Pending':   [false, false, false],
+    'Crafting':  [true,  false, false],
+    'Shipped':   [true,  true,  false],
+    'Delivered': [true,  true,  true ]
+};
 
-                        <div class="order-items">
-                            ${order.orderItems.map(item => `
-                                <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
-                                    <img src="${item.product.imageUrl ? BASE + item.product.imageUrl : 'images/placeholder.webp'}"
-                                         alt="${item.product.name}"
-                                         style="width:60px; height:60px; border-radius:8px; object-fit:cover;"
-                                         onerror="this.src='images/placeholder.webp'">
-                                    <div class="item-details">
-                                        <h4>${item.product.name}</h4>
-                                        <p>Qty: ${item.quantity} | $${item.unitPrice}.00</p>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
+const statusColors = {
+    'Pending':   '#ea580c',
+    'Crafting':  '#4f46e5',
+    'Shipped':   '#0891b2',
+    'Delivered': '#16a34a'
+};
 
-                        <div class="status-timeline">
-                            <div class="status-step completed">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Order Received</span>
-                            </div>
-                            <div class="status-step active">
-                                <div class="step-dot"></div>
-                                <span class="step-label">In Progress</span>
-                            </div>
-                            <div class="status-step">
-                                <div class="step-dot"></div>
-                                <span class="step-label">Ready</span>
-                            </div>
-                        </div>
+container.innerHTML = orders.map(order => {
+    const steps = statusSteps[order.status] || [false, false, false];
+    const color = statusColors[order.status] || '#ea580c';
 
-                        <div class="order-actions" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
-    <strong>Total (shipping included): $${order.totalPrice}.00</strong>
-</div>
+    return `
+    <div class="order-card">
+        <div class="order-header">
+            <div>
+                <h3>Order #${order.orderNumber}</h3>
+                <span class="order-date">Placed on ${new Date(order.orderDate).toLocaleDateString()}</span>
+            </div>
+            <span class="order-type" style="background:${color}20; color:${color};">
+                ${order.status}
+            </span>
+        </div>
+
+        <div class="order-items">
+            ${order.orderItems.map(item => `
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
+                    <img src="${item.product.imageUrl ? BASE + '/' + item.product.imageUrl : 'images/placeholder.webp'}"
+                         alt="${item.product.name}"
+                         style="width:60px; height:60px; border-radius:8px; object-fit:cover;"
+                         onerror="this.src='images/placeholder.webp'">
+                    <div class="item-details">
+                        <h4>${item.product.name}</h4>
+                        <p>Qty: ${item.quantity} | ${item.unitPrice}.00 AZN</p>
                     </div>
-                `).join('');
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="status-timeline">
+            <div class="status-step ${steps[0] ? 'completed' : 'active'}">
+                <div class="step-dot"></div>
+                <span class="step-label">Order Received</span>
+            </div>
+            <div class="status-step ${order.status === 'Crafting' ? 'active' : (steps[1] ? 'completed' : '')}">
+                <div class="step-dot"></div>
+                <span class="step-label">Crafting</span>
+            </div>
+            <div class="status-step ${order.status === 'Shipped' ? 'active' : (steps[2] ? 'completed' : '')}">
+                <div class="step-dot"></div>
+                <span class="step-label">Shipped</span>
+            </div>
+            <div class="status-step ${order.status === 'Delivered' ? 'active' : ''}">
+                <div class="step-dot"></div>
+                <span class="step-label">Delivered</span>
+            </div>
+        </div>
+
+        <div class="order-actions" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+            <strong>Total (shipping included): ${order.totalPrice}.00 AZN</strong>
+        </div>
+    </div>
+`}).join('');
 
             } catch (error) {
                 console.error("Error loading orders:", error);

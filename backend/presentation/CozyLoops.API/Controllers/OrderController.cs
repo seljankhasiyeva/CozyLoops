@@ -87,7 +87,23 @@ namespace CozyLoops.API.Controllers
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
-            return Ok(orders);
+            return Ok(orders.Select(o => new {
+                o.Id,
+                o.OrderNumber,
+                o.OrderDate,
+                o.TotalPrice,
+                o.Address,
+                status = o.Status.ToString(), // "Pending", "Crafting" və s.
+                orderItems = o.OrderItems.Select(oi => new {
+                    oi.Quantity,
+                    oi.UnitPrice,
+                    product = new
+                    {
+                        oi.Product.Name,
+                        oi.Product.ImageUrl
+                    }
+                })
+            }));
         }
 
         [HttpGet("all-orders")]
@@ -103,7 +119,7 @@ namespace CozyLoops.API.Controllers
                     customerName = o.AppUser.UserName,
                     o.TotalPrice,
                     o.OrderDate,
-                    status = "Pending",
+                    status = o.Status.ToString(),
                     itemCount = o.OrderItems.Count
                 })
                 .ToListAsync();
@@ -123,6 +139,19 @@ namespace CozyLoops.API.Controllers
             };
 
             return Ok(stats);
+        }
+
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] OrderStatus status)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null) return NotFound();
+
+            order.Status = status;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Status updated.", status = order.Status.ToString() });
         }
     }
 }
