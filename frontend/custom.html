@@ -165,10 +165,13 @@
             <li><a href="custom.html" class="active" data-i18n="nav_luma">LUMA</a></li>
             <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
-            <li class="lang-switch">
-                <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
-                <span onclick="setLanguage('ru')" style="cursor: pointer;">RUS</span> |
-                <span onclick="setLanguage('en')" style="cursor: pointer;">ENG</span>
+                                    <li class="lang-switch">
+                <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
+                <div class="lang-menu" role="menu">
+                    <button class="lang-option" type="button" data-lang="az">AZE</button>
+                    <button class="lang-option" type="button" data-lang="ru">RUS</button>
+                    <button class="lang-option" type="button" data-lang="en">ENG</button>
+                </div>
             </li>
         </ul>
         <div class="auth-buttons">
@@ -218,7 +221,7 @@
         <div class="footer-content">
             <div class="footer-column">
                 <h3>CozyLoops.</h3>
-                <p data-i18n="hero_title">Handcrafted warmth delivered to your doorstep.</p>
+                <p data-i18n="footer_tagline">Handcrafted warmth delivered to your doorstep.</p>
                 <p data-i18n="footer_address">Baku, Azerbaijan</p>
             </div>
             <div class="footer-column">

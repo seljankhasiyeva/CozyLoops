@@ -27,7 +27,7 @@ function saveToken(token) {
 }
 
 function getToken() {
-    return localStorage.getItem("token");
+    return localStorage.getItem("token") || localStorage.getItem("cozyloops_token");
 }
 
 function removeToken() {
@@ -101,7 +101,7 @@ async function login(email, password) {
 }
 
 window.logout = function () {
-    localStorage.clear();
+    removeToken();
     window.location.href = 'index.html';
 };
 
@@ -128,7 +128,6 @@ async function handleLogin(e) {
     if (!email || !password) return;
     const result = await login(email, password);
     if (result.success) {
-        // Admin isÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ admin panelÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ yÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¶nlÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ndir
         if (result.isAdmin) {
             window.location.href = 'admin/index.html';
         } else {
@@ -288,7 +287,7 @@ async function loadBasketItems() {
                         </div>
                     </td>
                     <td>${itemTotal}.00 AZN</td>
-                    <td><button class="remove-btn" onclick="removeItem(${productId})">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button></td>
+                    <td><button class="remove-btn" onclick="removeItem(${productId})">&times;</button></td>
                 </tr>`;
             }).join('');
 
@@ -420,14 +419,58 @@ function checkAuth() {
     const authBox = document.querySelector('.auth-buttons');
     if (token && userName && authBox) {
         const adminLink = isAdmin()
-            ? `<a href="admin/index.html" style="color:#c9a96e; margin-left:15px; font-weight:500;">Admin Panel</a>`
+            ? `<a href="admin/index.html" class="account-menu-item">Admin Panel</a>`
             : '';
         authBox.innerHTML = `
-            <span class="user-greeting">Hi, ${userName}</span>
-            ${adminLink}
-            <a href="#" onclick="window.logout()" class="logout-link" style="color:#ff4d4d; margin-left:15px; font-weight:500;">Logout</a>
+            <div class="account-menu-wrap">
+                <button class="account-trigger" aria-label="Account menu" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="8" r="3.6"></circle>
+                        <path d="M5 19c.8-3.2 3.6-5 7-5s6.2 1.8 7 5"></path>
+                    </svg>
+                </button>
+                <div class="account-menu" role="menu">
+                    <div class="account-menu-user">${escapeHtml(userName)}</div>
+                    ${adminLink}
+                    <button class="account-menu-item logout-item" type="button" onclick="window.logout()">Logout</button>
+                </div>
+            </div>
         `;
+        setupAccountMenu();
     }
+}
+
+function setupAccountMenu() {
+    if (window.__accountMenuBound) return;
+    window.__accountMenuBound = true;
+
+    document.addEventListener('click', (event) => {
+        const menuWrap = document.querySelector('.account-menu-wrap');
+        if (!menuWrap) return;
+
+        const trigger = menuWrap.querySelector('.account-trigger');
+        const isTriggerClick = trigger && (event.target === trigger || trigger.contains(event.target));
+
+        if (isTriggerClick) {
+            menuWrap.classList.toggle('open');
+            const expanded = menuWrap.classList.contains('open');
+            trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            return;
+        }
+
+        if (!menuWrap.contains(event.target)) {
+            menuWrap.classList.remove('open');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const menuWrap = document.querySelector('.account-menu-wrap');
+        const trigger = menuWrap?.querySelector('.account-trigger');
+        menuWrap?.classList.remove('open');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    });
 }
 
 window.setLanguage = function (lang) {
@@ -436,8 +479,50 @@ window.setLanguage = function (lang) {
         const key = el.getAttribute('data-i18n');
         if (translations[lang]?.[key]) el.innerHTML = translations[lang][key];
     });
+    const langMap = { az: 'AZE', ru: 'RUS', en: 'ENG' };
+    document.querySelectorAll('.lang-trigger').forEach(trigger => {
+        trigger.textContent = langMap[lang] || 'ENG';
+    });
     localStorage.setItem('cozy_lang', lang);
 };
+
+function setupLanguageMenu() {
+    document.querySelectorAll('.lang-switch').forEach((wrap) => {
+        if (wrap.dataset.bound === '1') return;
+        wrap.dataset.bound = '1';
+
+        const trigger = wrap.querySelector('.lang-trigger');
+        const options = wrap.querySelectorAll('.lang-option');
+
+        trigger?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const willOpen = !wrap.classList.contains('open');
+            document.querySelectorAll('.lang-switch.open').forEach(el => el.classList.remove('open'));
+            wrap.classList.toggle('open', willOpen);
+            trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        });
+
+        options.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const lang = btn.getAttribute('data-lang');
+                if (lang) setLanguage(lang);
+                wrap.classList.remove('open');
+                trigger?.setAttribute('aria-expanded', 'false');
+            });
+        });
+    });
+
+    if (!window.__langMenuGlobalBound) {
+        window.__langMenuGlobalBound = true;
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.lang-switch.open').forEach((wrap) => {
+                wrap.classList.remove('open');
+                const trigger = wrap.querySelector('.lang-trigger');
+                trigger?.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
+}
 
 // ==========================================
 // 4. LUNA ASSISTANT
@@ -615,28 +700,28 @@ function initAssistant() {
     }
 }
 
-window.openAssistant = function() {
+window.openAssistant = function () {
     const modal = document.getElementById('luma-modal');
     if (modal) modal.classList.add('open');
 };
 
-window.closeAssistant = function() {
+window.closeAssistant = function () {
     const modal = document.getElementById('luma-modal');
     if (modal) modal.classList.remove('open');
 };
 
-window.sendLumaMessage = function() {
+window.sendLumaMessage = function () {
     const input = document.getElementById('luma-input');
     const messagesDiv = document.querySelector('.luma-messages');
-    
+
     if (!input.value.trim()) return;
-    
+
     // Add user message
     const userMsg = document.createElement('div');
     userMsg.className = 'luma-message user';
     userMsg.textContent = input.value;
     messagesDiv.appendChild(userMsg);
-    
+
     // Simulate LUMA response (can be connected to actual AI)
     setTimeout(() => {
         const lumaMsg = document.createElement('div');
@@ -645,7 +730,7 @@ window.sendLumaMessage = function() {
         messagesDiv.appendChild(lumaMsg);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }, 500);
-    
+
     input.value = '';
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 };
@@ -654,9 +739,11 @@ window.sendLumaMessage = function() {
 // 5. INIT
 // ==========================================
 
+document.documentElement.style.visibility = 'hidden';
 document.addEventListener("DOMContentLoaded", () => {
     initAssistant();
     checkAuth();
+    setupLanguageMenu();
     loadProducts();
     updateBucketCount();
 
@@ -686,7 +773,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 loadReviews(p.id);
                 loadRelatedProducts(p.categoryId, p.id);
                 updateReviewFormVisibility();
-                
+
                 // Attach review form handler
                 const reviewForm = document.getElementById('review-form');
                 if (reviewForm) {
@@ -697,7 +784,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const savedLang = localStorage.getItem('cozy_lang') || 'en';
-    setTimeout(() => setLanguage(savedLang), 150);
+    setLanguage(savedLang);
+    document.documentElement.style.visibility = 'visible';
 });
 
 // Slider Navigation
@@ -725,7 +813,7 @@ async function loadReviews(productId) {
             const avgRating = (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1);
             const ratingEl = document.querySelector('.rating-number');
             const countEl = document.querySelector('.review-count');
-            
+
             if (ratingEl) ratingEl.textContent = avgRating;
             if (countEl) countEl.textContent = `Based on ${reviews.length} review${reviews.length !== 1 ? 's' : ''}`;
 
@@ -753,26 +841,26 @@ async function loadReviews(productId) {
 // Handle review form submission
 async function handleReviewSubmit(event, productId) {
     event.preventDefault();
-    
+
     if (!getToken()) {
         alert('Please login to submit a review.');
         window.location.href = 'login.html';
         return;
     }
-    
+
     const rating = document.querySelector('input[name="rating"]:checked');
     const comment = document.getElementById('review-comment').value.trim();
-    
+
     if (!rating) {
         alert('Please select a rating.');
         return;
     }
-    
+
     if (!comment) {
         alert('Please write a review.');
         return;
     }
-    
+
     try {
         const response = await authFetch(`${BASE_URL}/api/Review`, {
             method: 'POST',
@@ -783,7 +871,7 @@ async function handleReviewSubmit(event, productId) {
                 comment: comment
             })
         });
-        
+
         if (response.ok) {
             alert('Review submitted successfully!');
             document.getElementById('review-form').reset();
@@ -808,12 +896,12 @@ async function loadRelatedProducts(categoryId, currentProductId) {
         if (response.ok) {
             const products = await response.json();
             const related = products.filter(p => p.categoryId === categoryId && p.id !== currentProductId).slice(0, 3);
-            
+
             if (related.length === 0) {
                 grid.innerHTML = '<p style="text-align:center; padding:2rem; color:#999;">No related products found.</p>';
                 return;
             }
-            
+
             grid.innerHTML = related.map(product => `
                 <div class="product-card" onclick="window.location.href='detail.html?id=${product.id}'">
                     <div class="card-image">
@@ -834,7 +922,7 @@ async function loadRelatedProducts(categoryId, currentProductId) {
 function updateReviewFormVisibility() {
     const formSection = document.getElementById('review-form-section');
     const user = getUser();
-    
+
     if (formSection) {
         if (user) {
             formSection.style.display = 'block';

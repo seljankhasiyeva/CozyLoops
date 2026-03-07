@@ -5,7 +5,7 @@
 const API_BASE = "http://localhost:5245/api";
 
 function getToken() {
-    return localStorage.getItem('token');
+    return localStorage.getItem('token') || localStorage.getItem('cozyloops_token');
 }
 
 function escapeHtml(text) {
@@ -16,7 +16,7 @@ function escapeHtml(text) {
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Sidebar Toggle ──────────────────────────────
+    // Sidebar toggle
     const toggleBtn = document.querySelector('.sidebar-toggle');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── Page Detection & Data Loading ───────────────
+    // Page detection and data loading
     if (document.getElementById('products-table')) fetchProducts();
     if (document.getElementById('orders-table')) fetchOrders();
     if (document.getElementById('customers-table')) fetchCustomers();
@@ -231,7 +231,7 @@ async function fetchCustomers() {
                 </td>
                 <td>${customer.orderCount || 0}</td>
                 <td>${customer.totalSpent ? customer.totalSpent + '.00 AZN' : '0.00 AZN'}</td>
-                <td>${customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString() : '—'}</td>
+                <td>${customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString() : '-'}</td>
                 <td><span class="status-pills status-completed">Active</span></td>
                 <td>
                     <button class="btn-action" onclick="viewCustomer('${customer.id}')"><i class="fas fa-eye"></i></button>
