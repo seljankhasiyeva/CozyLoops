@@ -627,3 +627,20 @@ tr:last-child td {
         padding: 2rem 1rem;
     }
 }
+select.btn-action {
+    color: var(--text-color);
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: var(--font-body);
+}
+
+select.btn-action:focus {
+    border-color: var(--sidebar-bg) !important;
+    box-shadow: 0 0 0 3px rgba(45, 36, 32, 0.2) !important;
+    outline: none !important;
+}

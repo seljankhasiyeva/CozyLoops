@@ -83,10 +83,10 @@
                     <input type="text" placeholder="Search by name or email...">
                 </div>
                 <div class="filters">
-                    <select class="btn-action">
-                        <option>Sort by: Newest</option>
-                        <option>Order Count</option>
-                        <option>Total Spent</option>
+                    <select class="btn-action" id="customer-sort" onchange="sortCustomers(this.value)">
+                        <option value="newest">Sort by: Newest</option>
+                        <option value="orders">Order Count</option>
+                        <option value="spent">Total Spent</option>
                     </select>
                 </div>
             </div>

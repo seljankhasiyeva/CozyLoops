@@ -81,11 +81,8 @@
                     <input type="text" placeholder="Search products...">
                 </div>
                 <div class="filters">
-                    <select class="btn-action">
-                        <option>All Categories</option>
-                        <option>Toys</option>
-                        <option>Apparel</option>
-                        <option>Home Decor</option>
+                    <select class="btn-action" id="category-filter" onchange="filterProductsByCategory(this.value)">
+                        <option value="">All Categories</option>
                     </select>
                 </div>
             </div>
