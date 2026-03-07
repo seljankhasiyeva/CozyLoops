@@ -331,12 +331,8 @@
 
             <div class="chat-messages" id="chat-messages">
                 <div class="message ai-message">
-                    <div class="message-content">
-                        Salam! Mən CozyLoops-un AI köməkçisi LUMAyam. 🧶
-                        Xüsusi sifariş vermək istəyirsinizsə, istədiyiniz məhsulu təsvir edin — rəngi, materialı,
-                        ölçüsü, forması... İstəsəniz referans şəkil də yükləyə bilərsiniz!
-                    </div>
-                </div>
+    <div class="message-content">Salam! Mən CozyLoops-un AI köməkçisi LUMAyam. 🧶 Xüsusi sifariş vermək istəyirsinizsə, istədiyiniz məhsulu təsvir edin — rəngi, materialı, ölçüsü, forması. İstəsəniz referans şəkil də yükləyə bilərsiniz!</div>
+</div>
             </div>
 
             <div class="chat-input-area">
@@ -448,14 +444,15 @@
 
         // Mesaj əlavə et
         function addMessage(text, role) {
-            const msg = document.createElement('div');
-            msg.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
-            msg.innerHTML = `<div class="message-content">${text}</div>`;
-            messagesContainer.appendChild(msg);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            return msg;
-        }
-
+    const msg = document.createElement('div');
+    msg.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+    // \n-ləri <br>-ə çevir, əvvəl-axır boşluqları sil
+    const formatted = text.trim().replace(/\n+/g, ' ');
+    msg.innerHTML = `<div class="message-content">${formatted}</div>`;
+    messagesContainer.appendChild(msg);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    return msg;
+}
         // Typing indicator
         function showTyping() {
             const msg = document.createElement('div');

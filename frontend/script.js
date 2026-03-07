@@ -615,11 +615,13 @@ function setupLanguageMenu() {
 }
 
 // ==========================================
-// 4. LUNA ASSISTANT
+// 4. LUMA ASSISTANT
 // ==========================================
 
+const LUMA_API = "http://localhost:8000";
+let lumaHistory = [];
+
 function initAssistant() {
-    // Create floating assistant button
     const assistantBtn = document.createElement('button');
     assistantBtn.id = 'luma-assistant-btn';
     assistantBtn.className = 'luma-assistant-btn';
@@ -634,26 +636,42 @@ function initAssistant() {
     assistantBtn.onclick = openAssistant;
     document.body.appendChild(assistantBtn);
 
-    // Create assistant modal
     const modal = document.createElement('div');
     modal.id = 'luma-modal';
     modal.className = 'luma-modal';
     modal.innerHTML = `
         <div class="luma-modal-content">
             <div class="luma-header">
-                <h3>LUMA Assistant</h3>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:32px; height:32px; background:#c9a96e; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; color:#fff;">L</div>
+                    <div>
+                        <div style="font-weight:600; font-size:1rem;">LUMA</div>
+                        <div style="font-size:0.75rem; opacity:0.7;">CozyLoops Assistant</div>
+                    </div>
+                </div>
                 <button class="luma-close-btn" onclick="closeAssistant()">&times;</button>
             </div>
-            <div class="luma-messages"></div>
+            <div class="luma-messages" id="luma-messages">
+                <div class="luma-message luma">Salam! Məhsullar, materiallar və ya sifarişlər haqqında sual ver, kömək edim! 🧶</div>
+            </div>
             <div class="luma-input-area">
-                <input type="text" id="luma-input" placeholder="Tell me your ideas..." class="luma-input">
-                <button onclick="sendLumaMessage()" class="luma-send-btn">Send</button>
+                <input type="text" id="luma-input" placeholder="Sualınızı yazın..." class="luma-input">
+                <button onclick="sendLumaMessage()" id="luma-send-btn" class="luma-send-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
 
-    // Add styles dynamically
+    // Enter key
+    modal.querySelector('#luma-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendLumaMessage();
+    });
+
     if (!document.getElementById('luma-styles')) {
         const style = document.createElement('style');
         style.id = 'luma-styles';
@@ -676,114 +694,122 @@ function initAssistant() {
                 transition: all 0.3s;
                 z-index: 999;
             }
-            .luma-assistant-btn svg {
-                width: 32px;
-                height: 32px;
-            }
-            .luma-assistant-btn:hover {
-                transform: scale(1.1);
-                box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-            }
+            .luma-assistant-btn svg { width: 32px; height: 32px; }
+            .luma-assistant-btn:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
             .luma-modal {
                 display: none;
                 position: fixed;
                 bottom: 100px;
                 right: 30px;
                 width: 350px;
-                max-height: 500px;
+                height: 480px;
                 background: white;
-                border-radius: 12px;
+                border-radius: 16px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.2);
                 z-index: 1000;
                 flex-direction: column;
+                overflow: hidden;
             }
-            .luma-modal.open {
-                display: flex;
-            }
-            .luma-modal-content {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-            }
+            .luma-modal.open { display: flex; }
+            .luma-modal-content { display: flex; flex-direction: column; height: 100%; }
             .luma-header {
-                padding: 1rem;
+                padding: 1rem 1.2rem;
                 background: #211b19;
                 color: white;
-                border-radius: 12px 12px 0 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                flex-shrink: 0;
             }
-            .luma-header h3 {
-                margin: 0;
-                font-size: 1.1rem;
-            }
-            .luma-close-btn {
-                background: none;
-                border: none;
-                color: white;
-                font-size: 1.5rem;
-                cursor: pointer;
-            }
+            .luma-close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; line-height: 1; }
             .luma-messages {
                 flex: 1;
                 overflow-y: auto;
                 padding: 1rem;
-                background: #f9f9f9;
+                background: #f9f7f5;
+                display: flex;
+                flex-direction: column;
+                gap: 0.8rem;
             }
             .luma-message {
-                margin-bottom: 0.8rem;
-                padding: 0.8rem;
-                border-radius: 8px;
+                padding: 0.7rem 1rem;
+                border-radius: 12px;
                 max-width: 85%;
+                font-size: 0.9rem;
+                line-height: 1.5;
                 word-wrap: break-word;
             }
             .luma-message.user {
                 background: #211b19;
                 color: white;
                 margin-left: auto;
+                border-bottom-right-radius: 3px;
             }
             .luma-message.luma {
-                background: #e8e8e8;
-                color: #333;
+                background: #ede9e4;
+                color: #2D2420;
+                border-bottom-left-radius: 3px;
+            }
+            .luma-typing {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                padding: 0.7rem 1rem;
+                background: #ede9e4;
+                border-radius: 12px;
+                border-bottom-left-radius: 3px;
+                width: fit-content;
+            }
+            .luma-typing span {
+                width: 7px; height: 7px;
+                background: #9b6b43;
+                border-radius: 50%;
+                animation: lumaBounce 1.2s infinite;
+            }
+            .luma-typing span:nth-child(2) { animation-delay: 0.2s; }
+            .luma-typing span:nth-child(3) { animation-delay: 0.4s; }
+            @keyframes lumaBounce {
+                0%, 60%, 100% { transform: translateY(0); }
+                30% { transform: translateY(-5px); }
             }
             .luma-input-area {
                 display: flex;
                 gap: 0.5rem;
-                padding: 1rem;
+                padding: 0.8rem 1rem;
                 border-top: 1px solid #eee;
                 background: white;
-                border-radius: 0 0 12px 12px;
+                flex-shrink: 0;
             }
             .luma-input {
                 flex: 1;
                 border: 1px solid #ddd;
-                padding: 0.5rem;
-                border-radius: 4px;
+                padding: 0.6rem 1rem;
+                border-radius: 20px;
                 font-family: var(--font-body);
+                font-size: 0.9rem;
+                outline: none;
+                transition: border-color 0.3s;
             }
+            .luma-input:focus { border-color: #c9a96e; }
             .luma-send-btn {
                 background: #211b19;
                 color: white;
                 border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
                 cursor: pointer;
-                font-weight: 500;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                transition: background 0.3s;
             }
+            .luma-send-btn:hover { background: #c9a96e; }
+            .luma-send-btn:disabled { background: #ccc; cursor: not-allowed; }
             @media (max-width: 600px) {
-                .luma-modal {
-                    width: calc(100% - 40px);
-                    bottom: 90px;
-                    right: 20px;
-                }
-                .luma-assistant-btn {
-                    bottom: 20px;
-                    right: 20px;
-                    width: 50px;
-                    height: 50px;
-                    font-size: 1.5rem;
-                }
+                .luma-modal { width: calc(100% - 40px); bottom: 90px; right: 20px; }
+                .luma-assistant-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; }
             }
         `;
         document.head.appendChild(style);
@@ -791,40 +817,79 @@ function initAssistant() {
 }
 
 window.openAssistant = function () {
-    const modal = document.getElementById('luma-modal');
-    if (modal) modal.classList.add('open');
+    document.getElementById('luma-modal')?.classList.add('open');
 };
 
 window.closeAssistant = function () {
-    const modal = document.getElementById('luma-modal');
-    if (modal) modal.classList.remove('open');
+    document.getElementById('luma-modal')?.classList.remove('open');
 };
 
-window.sendLumaMessage = function () {
+window.sendLumaMessage = async function () {
     const input = document.getElementById('luma-input');
-    const messagesDiv = document.querySelector('.luma-messages');
+    const messagesDiv = document.getElementById('luma-messages');
+    const sendBtn = document.getElementById('luma-send-btn');
+    const text = input.value.trim();
+    if (!text) return;
 
-    if (!input.value.trim()) return;
-
-    // Add user message
+    // User mesajı
     const userMsg = document.createElement('div');
     userMsg.className = 'luma-message user';
-    userMsg.textContent = input.value;
+    userMsg.textContent = text;
     messagesDiv.appendChild(userMsg);
-
-    // Simulate LUMA response (can be connected to actual AI)
-    setTimeout(() => {
-        const lumaMsg = document.createElement('div');
-        lumaMsg.className = 'luma-message luma';
-        lumaMsg.textContent = 'Thanks for your message! This feature will be connected to our AI assistant soon.';
-        messagesDiv.appendChild(lumaMsg);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }, 500);
-
     input.value = '';
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
-};
 
+    lumaHistory.push({ role: 'user', content: text });
+
+    // Typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'luma-typing';
+    typing.id = 'luma-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    messagesDiv.appendChild(typing);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    sendBtn.disabled = true;
+
+    try {
+        // Hazırda hansı məhsulun detail səhifəsindəyik
+        const productId = new URLSearchParams(window.location.search).get('id');
+        const lang = localStorage.getItem('cozy_lang') || 'en';
+
+        const formData = new FormData();
+        formData.append('message', text);
+        formData.append('lang', lang);
+        formData.append('conversation_history', JSON.stringify(lumaHistory.slice(-10)));
+        if (productId) formData.append('product_id', productId);
+
+        const response = await fetch(`${LUMA_API}/ask-luma`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        const reply = data.reply || 'Xəta baş verdi.';
+
+        lumaHistory.push({ role: 'assistant', content: reply });
+
+        document.getElementById('luma-typing')?.remove();
+
+        const lumaMsg = document.createElement('div');
+        lumaMsg.className = 'luma-message luma';
+        lumaMsg.textContent = reply;
+        messagesDiv.appendChild(lumaMsg);
+
+    } catch (e) {
+        document.getElementById('luma-typing')?.remove();
+        const errMsg = document.createElement('div');
+        errMsg.className = 'luma-message luma';
+        errMsg.textContent = 'Bağlantı xətası. Python server işləyirmi?';
+        messagesDiv.appendChild(errMsg);
+    }
+
+    sendBtn.disabled = false;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+};
 // ==========================================
 // 5. INIT
 // ==========================================

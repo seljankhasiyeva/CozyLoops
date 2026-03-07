@@ -2,12 +2,13 @@ import base64
 import os
 import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, Form, UploadFile, File, HTTPException
+from fastapi import FastAPI, Form, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
 import uvicorn
 from pathlib import Path
 from typing import Optional
+import json
 
 app = FastAPI()
 
@@ -18,7 +19,7 @@ api_key = os.getenv("GROQ_API_KEY")
 DOTNET_API = os.getenv("DOTNET_API_URL", "http://localhost:5245/api")
 
 if not api_key:
-    raise ValueError("Kritik Xəta: .env faylı tapılmadı və ya GROQ_API_KEY boşdur!")
+    raise ValueError("GROQ_API_KEY not found in .env file!")
 
 client = Groq(api_key=api_key)
 
@@ -30,119 +31,86 @@ app.add_middleware(
 )
 
 # ==========================================
-# YARDIMCI: .NET API-dən məhsul məlumatı al
+# HELPER: Fetch product from .NET API
 # ==========================================
 
-async def get_product_from_api(product_id: int) -> dict | None:
+async def get_product(product_id: int) -> dict | None:
     try:
-        async with httpx.AsyncClient() as client_http:
-            response = await client_http.get(f"{DOTNET_API}/Product/{product_id}", timeout=5)
-            if response.status_code == 200:
-                return response.json()
+        async with httpx.AsyncClient() as c:
+            r = await c.get(f"{DOTNET_API}/Product/{product_id}", timeout=5)
+            if r.status_code == 200:
+                return r.json()
     except Exception:
         pass
     return None
 
-async def get_all_products_from_api() -> list:
-    try:
-        async with httpx.AsyncClient() as client_http:
-            response = await client_http.get(f"{DOTNET_API}/Product", timeout=5)
-            if response.status_code == 200:
-                return response.json()
-    except Exception:
-        pass
-    return []
-
 # ==========================================
-# YARDIMCI: Dil seçimi
-# ==========================================
-
-def get_language_instruction(lang: str) -> str:
-    lang_map = {
-        "az": "Azərbaycan dilində cavab ver.",
-        "ru": "Отвечай на русском языке.",
-        "en": "Respond in English."
-    }
-    return lang_map.get(lang, "Respond in English.")
-
-# ==========================================
-# 1. LUMA CHAT — Ümumi və məhsul sualları
+# 1. LUMA CHAT
 # ==========================================
 
 @app.post("/ask-luma")
 async def ask_luma(
     message: str = Form(...),
-    lang: str = Form("en"),
     product_id: Optional[int] = Form(None),
     conversation_history: Optional[str] = Form(None)
 ):
     try:
-        # Məhsul kontekstini API-dən al
         product_context = ""
         if product_id:
-            product = await get_product_from_api(product_id)
+            product = await get_product(product_id)
             if product:
                 product_context = (
-                    f"\n[MƏHSUL KONTEKSTİ: Müştəri hazırda '{product.get('name')}' məhsuluna baxır. "
-                    f"Qiymət: {product.get('price')} AZN. "
-                    f"Kateqoriya ID: {product.get('categoryId')}. "
-                    f"Material: {product.get('material', 'məlumat yoxdur')}. "
-                    f"Təsvir: {product.get('description', 'məlumat yoxdur')}. "
-                    f"Stok: {product.get('stock')} ədəd.]"
+                    f"\n[PRODUCT CONTEXT: Customer is viewing '{product.get('name')}'. "
+                    f"Price: {product.get('price')} AZN. "
+                    f"Material: {product.get('material', 'not specified')}. "
+                    f"Description: {product.get('description', 'not specified')}. "
+                    f"Stock: {product.get('stock')} units.]"
                 )
 
-        lang_instruction = get_language_instruction(lang)
-
         system_prompt = (
-    "Sən CozyLoops mağazasının köməkçisi LUMAsan. "
-    "Azərbaycan dilində danışırsan — sadə, qısa, təbii. "
-    "Sanki bir dost kimi danış. "
-    "Heç vaxt link, html, url yaratma. "
-    "Heç vaxt 'papak.html', 'custom.html' kimi şeylər yazma. "
-    "Xüsusi sifariş üçün sadəcə de: 'LUMA səhifəsinə keç'. "
-    "Sifariş izləmək üçün de: 'Sifarişlər səhifəsinə bax'. "
-    "Cavabın maksimum 2-3 cümlə olsun. "
-    "Məhsullar, rənglər, ölçülər, materiallar haqqında kömək et. "
-    "Heç vaxt formatlaşdırma (*, #, ---) işlətmə. "
-    f"{lang_instruction}"
-    f"{product_context}"
-)
+            "You are LUMA, a friendly assistant for CozyLoops, a handmade crochet shop in Azerbaijan. "
+            "CozyLoops sells amigurumi toys, cardigans, socks, scarves, hats, mittens and more — all handmade. "
+            "STRICT RULES: "
+            "1. Keep responses to 1-2 short sentences only. "
+            "2. Never repeat information the customer already knows. "
+            "3. Never calculate prices or totals for the customer. "
+            "4. If customer wants to buy something, say: 'Just hit the Add to Cart button on the page!' "
+            "5. Never mention URLs, file names, or page names like cart.html or checklist.html. "
+            "6. To check orders, say: 'Check your orders in the Checklist page.' "
+            "7. Be warm, natural and concise — like a real shop assistant talking to a friend. "
+            "8. Never introduce yourself unless directly asked. "
+            f"{product_context}"
+        )
 
-        # Söhbət tarixini parse et
         messages = [{"role": "system", "content": system_prompt}]
 
         if conversation_history:
-            import json
             try:
                 history = json.loads(conversation_history)
-                # Son 10 mesajı saxla (context window üçün)
                 for msg in history[-10:]:
                     if msg.get("role") in ["user", "assistant"]:
-                        messages.append({
-                            "role": msg["role"],
-                            "content": msg["content"]
-                        })
+                        messages.append({"role": msg["role"], "content": msg["content"]})
             except Exception:
                 pass
 
         messages.append({"role": "user", "content": message})
 
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="gemma2-9b-it",
             messages=messages,
-            temperature=0.7,
-            max_tokens=500
+            temperature=0.6,
+            max_tokens=150
         )
 
-        reply = completion.choices[0].message.content
+        reply = completion.choices[0].message.content.strip()
         return {"reply": reply, "status": "success"}
 
     except Exception as e:
-        return {"reply": f"Xəta baş verdi: {str(e)}", "status": "error"}
+        return {"reply": f"Something went wrong: {str(e)}", "status": "error"}
 
 
 # ==========================================
-# 2. LUMA CUSTOM ORDER — Şəkil analizi + sifariş
+# 2. ANALYZE ORDER (image + text)
 # ==========================================
 
 @app.post("/analyze-order")
@@ -151,24 +119,20 @@ async def analyze_order(
     material_pref: str = Form(None),
     size: str = Form(None),
     color: str = Form(None),
-    lang: str = Form("en"),
     file: UploadFile = File(None)
 ):
     try:
-        lang_instruction = get_language_instruction(lang)
+        order_details = f"Customer request: {description}."
+        if material_pref: order_details += f" Material preference: {material_pref}."
+        if size:          order_details += f" Size: {size}."
+        if color:         order_details += f" Color: {color}."
 
-        order_details = f"Müştəri sifarişi: {description}."
-        if material_pref: order_details += f" Material: {material_pref}."
-        if size:          order_details += f" Ölçü: {size}."
-        if color:         order_details += f" Rəng: {color}."
-
-        # Şəkil varsa Vision modeli istifadə et
         if file:
             contents = await file.read()
             base64_image = base64.b64encode(contents).decode('utf-8')
 
             response = client.chat.completions.create(
-                model="llama-3.2-11b-vision-preview",
+                model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                     {
                         "role": "user",
@@ -176,16 +140,11 @@ async def analyze_order(
                             {
                                 "type": "text",
                                 "text": (
-                                    f"Sən CozyLoops-un xüsusi sifariş köməkçisi LUMAsan. "
+                                    f"You are LUMA, a custom order assistant for CozyLoops crochet shop. "
                                     f"{order_details} "
-                                    f"Bu şəkli analiz et və müştəriyə aşağıdakıları əhatə edən sifariş təklifi hazırla:\n"
-                                    f"1. Məhsulun adı\n"
-                                    f"2. Rəng paleti\n"
-                                    f"3. Tövsiyə olunan material\n"
-                                    f"4. Təxmini ölçü\n"
-                                    f"5. Hazırlanma müddəti (gün)\n"
-                                    f"6. Təxmini qiymət (AZN)\n"
-                                    f"Cavabı dostcasına və aydın şəkildə yaz. {lang_instruction}"
+                                    f"Analyze this reference image and create a friendly order summary including: "
+                                    f"1. Product name, 2. Color palette, 3. Recommended material, "
+                                    f"4. Estimated size, 5. Production time (days), 6. Estimated price (AZN)."
                                 )
                             },
                             {
@@ -195,68 +154,39 @@ async def analyze_order(
                         ]
                     }
                 ],
-                max_tokens=800
+                max_tokens=600
             )
-            reply = response.choices[0].message.content
+            reply = response.choices[0].message.content.strip()
 
-        # Şəkil yoxdursa text modeli
         else:
             completion = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model="gemma2-9b-it",
                 messages=[
                     {
                         "role": "system",
                         "content": (
-                            f"Sən CozyLoops-un xüsusi sifariş köməkçisi LUMAsan. "
-                            f"Əl işi tikiş məhsulları üzrə ekspertisən. "
-                            f"Müştərinin sifarişinə əsasən aşağıdakıları əhatə edən sifariş təklifi hazırla:\n"
-                            f"1. Məhsulun adı\n"
-                            f"2. Rəng paleti\n"
-                            f"3. Tövsiyə olunan material\n"
-                            f"4. Təxmini ölçü\n"
-                            f"5. Hazırlanma müddəti (gün)\n"
-                            f"6. Təxmini qiymət (AZN)\n"
-                            f"Cavabı dostcasına və aydın şəkildə yaz. {lang_instruction}"
+                            "You are LUMA, a custom order assistant for CozyLoops crochet shop. "
+                            "Based on the customer's request, create a friendly order summary including: "
+                            "1. Product name, 2. Color palette, 3. Recommended material, "
+                            "4. Estimated size, 5. Production time (days), 6. Estimated price (AZN). "
+                            "Be warm and concise."
                         )
                     },
                     {"role": "user", "content": order_details}
                 ],
                 temperature=0.7,
-                max_tokens=800
+                max_tokens=600
             )
-            reply = completion.choices[0].message.content
+            reply = completion.choices[0].message.content.strip()
 
         return {"reply": reply, "status": "success"}
 
     except Exception as e:
-        return {"reply": f"Sifariş analizi xətası: {str(e)}", "status": "error"}
+        return {"reply": f"Order analysis error: {str(e)}", "status": "error"}
 
 
 # ==========================================
-# 3. MƏHSUL AXTARIŞI — LUMA üçün
-# ==========================================
-
-@app.get("/products-context")
-async def get_products_context():
-    """Frontend-ə bütün məhsulların qısa siyahısını qaytarır"""
-    try:
-        products = await get_all_products_from_api()
-        simplified = [
-            {
-                "id": p.get("id"),
-                "name": p.get("name"),
-                "price": p.get("price"),
-                "category": p.get("categoryId")
-            }
-            for p in products
-        ]
-        return {"products": simplified, "status": "success"}
-    except Exception as e:
-        return {"products": [], "status": "error", "message": str(e)}
-
-
-# ==========================================
-# 4. HEALTH CHECK
+# 3. HEALTH CHECK
 # ==========================================
 
 @app.get("/health")
