@@ -16,47 +16,50 @@
     <nav class="navbar">
         <div class="logo">CozyLoops<span class="dot">.</span></div>
         <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html" data-i18n="nav_home">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
             <li><a href="cart.html"><span data-i18n="nav_card">Cart</span></a></li>
-            <li><a href="checklist.html">Checklist</a></li>
+            <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
             <li class="lang-switch">
-                <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
-                <span onclick="setLanguage('ru')" style="cursor: pointer;">RUS</span> |
-                <span onclick="setLanguage('en')" style="cursor: pointer;">ENG</span>
+                <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
+                <div class="lang-menu" role="menu">
+                    <button class="lang-option" type="button" data-lang="az">AZE</button>
+                    <button class="lang-option" type="button" data-lang="ru">RUS</button>
+                    <button class="lang-option" type="button" data-lang="en">ENG</button>
+                </div>
             </li>
         </ul>
         <div class="auth-buttons">
-            <a href="login.html" class="btn-login">Login</a>
+            <a href="login.html" class="btn-login" data-i18n="btn_login">Login</a>
         </div>
     </nav>
 
     <section class="auth-section">
         <div class="auth-card">
-            <h2>Join our Community</h2>
-            <p>Create an account to track your orders and checklist.</p>
+            <h2 data-i18n="auth_join_community">Join our Community</h2>
+            <p data-i18n="auth_register_subtitle">Create an account to track your orders and checklist.</p>
 
             <form id="register-form" class="auth-form">
                 <div class="form-group">
-                    <label for="register-fullname">Full Name</label>
+                    <label for="register-fullname" data-i18n="auth_full_name">Full Name</label>
                     <input type="text" id="register-fullname" placeholder="Jane Doe" required>
                 </div>
                 <div class="form-group">
-                    <label for="register-email">Email Address</label>
+                    <label for="register-email" data-i18n="auth_email">Email Address</label>
                     <input type="email" id="register-email" placeholder="hello@cozyloops.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="register-password">Password</label>
-                    <input type="password" id="register-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
+                    <label for="register-password" data-i18n="auth_password">Password</label>
+                    <input type="password" id="register-password" placeholder="********" required>
                 </div>
 
                 <p id="register-error" style="color: red; font-size: 14px; margin: 0;"></p>
 
-                <button type="submit" class="auth-btn">Create Account</button>
+                <button type="submit" class="auth-btn" data-i18n="auth_create_account">Create Account</button>
 
                 <div class="auth-footer">
-                    <p>Already have an account? <a href="login.html">Login here</a></p>
+                    <p data-i18n="auth_have_account">Already have an account? <a href="login.html">Login here</a></p>
                 </div>
             </form>
         </div>

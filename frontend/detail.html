@@ -22,15 +22,18 @@
     <nav class="navbar">
         <div class="logo">CozyLoops<span class="dot">.</span></div>
         <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html" data-i18n="nav_home">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
             <li><a href="custom.html" data-i18n="nav_luma">LUMA</a></li>
             <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
-            <li><a href="checklist.html">Checklist</a></li>
-            <li class="lang-switch">
-                <span onclick="setLanguage('az')" style="cursor: pointer;">AZE</span> |
-                <span onclick="setLanguage('ru')" style="cursor: pointer;">RUS</span> |
-                <span onclick="setLanguage('en')" style="cursor: pointer;">ENG</span>
+            <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
+                                    <li class="lang-switch">
+                <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
+                <div class="lang-menu" role="menu">
+                    <button class="lang-option" type="button" data-lang="az">AZE</button>
+                    <button class="lang-option" type="button" data-lang="ru">RUS</button>
+                    <button class="lang-option" type="button" data-lang="en">ENG</button>
+                </div>
             </li>
         </ul>
         <div class="auth-buttons">
@@ -46,7 +49,7 @@
         </div>
 
         <div class="pd-info">
-            <h1 id="main-product-title" class="pd-title">MÃ‰â„¢hsul adÃ„Â±...</h1>
+            <h1 id="main-product-title" class="pd-title">MÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢hsul adÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚Â±...</h1>
             
             <p id="main-product-price" class="pd-price">0.00 AZN</p>
 
@@ -57,7 +60,7 @@
 
             <div class="pd-description">
                 <h3>Description</h3>
-                <p id="main-product-desc">YÃƒÂ¼klÃ‰â„¢nir...</p>
+                <p id="main-product-desc">YÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¼klÃƒÆ’Ã¢â‚¬Â°ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢nir...</p>
             </div>
 
             <div class="pd-actions">
@@ -137,24 +140,24 @@
         <div class="footer-content">
             <div class="footer-column">
                 <h3>CozyLoops.</h3>
-                <p>Handcrafted warmth delivered to your doorstep.</p>
-                <p>Baku, Azerbaijan</p>
+                <p data-i18n="footer_tagline">Handcrafted warmth delivered to your doorstep.</p>
+                <p data-i18n="footer_address">Baku, Azerbaijan</p>
             </div>
             <div class="footer-column">
-                <h3>Contact</h3>
+                <h3 data-i18n="footer_contact">Contact</h3>
                 <a href="tel:+994501234567">+994 50 123 45 67</a>
                 <a href="mailto:hello@cozyloops.com">hello@cozyloops.com</a>
                 <p>Mon - Fri: 09:00 - 18:00</p>
             </div>
             <div class="footer-column">
-                <h3>Follow Us</h3>
+                <h3 data-i18n="footer_follow">Follow Us</h3>
                 <a href="#">Instagram</a>
                 <a href="#">Facebook</a>
                 <a href="#">Pinterest</a>
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; 2026 CozyLoops. All rights reserved.
+            &copy; 2026 CozyLoops. <span data-i18n="footer_rights">All rights reserved.</span>
         </div>
     </footer>
 
