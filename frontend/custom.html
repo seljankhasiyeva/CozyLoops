@@ -4,23 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Order - AI Assistant | Cozy Loops</title>
-    <!-- Google Fonts -->
+    <title>LUMA - Custom Order Assistant | Cozy Loops</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Specific Styles for Custom Chat Page (can be moved to style.css later) */
         .chat-page-section {
             padding: 8rem 8% 4rem 8%;
             min-height: 85vh;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
         }
 
         .chat-container-full {
@@ -33,6 +30,7 @@
             flex-direction: column;
             overflow: hidden;
             border: 1px solid rgba(0, 0, 0, 0.05);
+            height: calc(100vh - 12rem);
         }
 
         .chat-header {
@@ -67,6 +65,7 @@
             color: white;
             font-weight: bold;
             font-family: var(--font-heading);
+            font-size: 1rem;
         }
 
         .chat-messages {
@@ -77,7 +76,6 @@
             flex-direction: column;
             gap: 1.5rem;
             background: #fff;
-            min-height: 400px;
         }
 
         .message {
@@ -89,7 +87,8 @@
             padding: 1rem 1.5rem;
             border-radius: 15px;
             font-size: 1rem;
-            line-height: 1.5;
+            line-height: 1.6;
+            white-space: pre-wrap;
         }
 
         .ai-message {
@@ -112,15 +111,85 @@
             border-top-right-radius: 2px;
         }
 
+        /* Typing indicator */
+        .typing-indicator .message-content {
+            background: #F3F0EC;
+            padding: 1rem 1.5rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #aaa;
+            border-radius: 50%;
+            animation: typingBounce 1.2s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* Confirm order button */
+        .confirm-order-btn {
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .confirm-order-btn:hover {
+            background: var(--text-color);
+            transform: translateY(-2px);
+        }
+
+        /* Input area */
         .chat-input-area {
             padding: 1.5rem;
             background: #fff;
             border-top: 1px solid #eee;
             display: flex;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 0.8rem;
         }
 
-        .chat-input-area input {
+        .input-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .chat-input-area input[type="text"] {
             flex: 1;
             padding: 1rem 1.5rem;
             border: 1px solid #ddd;
@@ -131,11 +200,11 @@
             transition: border-color 0.3s;
         }
 
-        .chat-input-area input:focus {
+        .chat-input-area input[type="text"]:focus {
             border-color: var(--accent-color);
         }
 
-        .chat-input-area button {
+        .send-btn {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -146,17 +215,88 @@
             align-items: center;
             justify-content: center;
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
 
-        .chat-input-area button:hover {
+        .send-btn:hover {
             transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Image upload */
+        .image-upload-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .upload-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px dashed #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #888;
+            transition: all 0.3s;
+        }
+
+        .upload-label:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .upload-label input {
+            display: none;
+        }
+
+        .image-preview-wrap {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .image-preview-wrap img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .remove-img-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .remove-img-btn:hover {
+            color: red;
+        }
+
+        .mode-badge {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(192, 133, 82, 0.1);
+            color: var(--accent-color);
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">CozyLoops<span class="dot">.</span></div>
         <ul class="nav-links">
@@ -165,7 +305,7 @@
             <li><a href="custom.html" class="active" data-i18n="nav_luma">LUMA</a></li>
             <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
-                                    <li class="lang-switch">
+            <li class="lang-switch">
                 <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
                 <div class="lang-menu" role="menu">
                     <button class="lang-option" type="button" data-lang="az">AZE</button>
@@ -179,44 +319,61 @@
         </div>
     </nav>
 
-    <!-- Chat Interface Section -->
     <section class="chat-page-section">
         <div class="chat-container-full">
             <div class="chat-header">
                 <div>
-                    <h1 data-i18n="chat_title">Custom Order Assistant</h1>
-                    <p data-i18n="chat_subtitle">Describe your dream crochet item, and I'll help you create it.</p>
+                    <h1>LUMA <span class="mode-badge" id="mode-badge">Custom Order</span></h1>
+                    <p>Xüsusi sifarişinizi təsvir edin, LUMA sizə kömək edəcək.</p>
                 </div>
-                <div class="ai-avatar">
-                    <span>AI</span>
-                </div>
+                <div class="ai-avatar">L</div>
             </div>
 
             <div class="chat-messages" id="chat-messages">
-                <!-- AI Welcome Message -->
                 <div class="message ai-message">
                     <div class="message-content">
-                        <p data-i18n="chat_welcome">Hello! I'm your CozyLoops assistant. tell me what you'd like to
-                            order today? (e.g., "A blue fox amigurumi" or "A large wool blanket")</p>
+                        Salam! Mən CozyLoops-un AI köməkçisi LUMAyam. 🧶
+                        Xüsusi sifariş vermək istəyirsinizsə, istədiyiniz məhsulu təsvir edin — rəngi, materialı,
+                        ölçüsü, forması... İstəsəniz referans şəkil də yükləyə bilərsiniz!
                     </div>
                 </div>
             </div>
 
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Type your request here..." data-i18n="chat_placeholder">
-                <button id="send-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </button>
+                <!-- Image upload row -->
+                <div class="image-upload-row">
+                    <label class="upload-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        Referans şəkil əlavə et
+                        <input type="file" id="image-input" accept="image/*">
+                    </label>
+                    <div class="image-preview-wrap" id="image-preview-wrap">
+                        <img id="image-preview" src="" alt="preview">
+                        <button class="remove-img-btn" id="remove-img">✕</button>
+                    </div>
+                </div>
+
+                <!-- Text input row -->
+                <div class="input-row">
+                    <input type="text" id="chat-input" placeholder="Məhsulunuzu təsvir edin...">
+                    <button class="send-btn" id="send-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-column">
@@ -241,43 +398,215 @@
         </div>
     </footer>
 
-    <!-- GSAP Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-
-    <!-- Scripts -->
     <script src="translations.js"></script>
     <script src="script.js"></script>
+
     <script>
-        // Simple Mock Chat Logic for Demonstration
+        const LUMA_API = "http://localhost:8000";
+        const DOTNET_API = "http://localhost:5245/api";
+
         const sendBtn = document.getElementById('send-btn');
         const chatInput = document.getElementById('chat-input');
         const messagesContainer = document.getElementById('chat-messages');
+        const imageInput = document.getElementById('image-input');
+        const imagePreviewWrap = document.getElementById('image-preview-wrap');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImgBtn = document.getElementById('remove-img');
 
-        function sendMessage() {
-            const text = chatInput.value.trim();
-            if (text) {
-                // User Message
-                const userMsg = document.createElement('div');
-                userMsg.className = 'message user-message';
-                userMsg.innerHTML = `<div class="message-content"><p>${text}</p></div>`;
-                messagesContainer.appendChild(userMsg);
-                chatInput.value = '';
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Söhbət tarixi
+        let conversationHistory = [];
+        // Son LUMA cavabı (sifariş təsdiqi üçün)
+        let lastLumaReply = "";
+        let isOrderProposal = false;
 
-                // Fake AI Response Timeout
-                setTimeout(() => {
-                    const aiMsg = document.createElement('div');
-                    aiMsg.className = 'message ai-message';
-                    aiMsg.innerHTML = `<div class="message-content"><p>That sounds lovely! I can help you with a custom order for "${text}". Would you like to pick a specific color or material?</p></div>`;
-                    messagesContainer.appendChild(aiMsg);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 1000);
+        // Aktiv dil
+        function getLang() {
+            return localStorage.getItem('cozy_lang') || 'en';
+        }
+
+        // Şəkil seçimi
+        imageInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreviewWrap.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Şəkili sil
+        removeImgBtn.addEventListener('click', () => {
+            imageInput.value = '';
+            imagePreviewWrap.style.display = 'none';
+            imagePreview.src = '';
+        });
+
+        // Mesaj əlavə et
+        function addMessage(text, role) {
+            const msg = document.createElement('div');
+            msg.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+            msg.innerHTML = `<div class="message-content">${text}</div>`;
+            messagesContainer.appendChild(msg);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return msg;
+        }
+
+        // Typing indicator
+        function showTyping() {
+            const msg = document.createElement('div');
+            msg.className = 'message ai-message typing-indicator';
+            msg.id = 'typing-indicator';
+            msg.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>`;
+            messagesContainer.appendChild(msg);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTyping() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        // Sifariş təsdiq düyməsi
+        function addConfirmButton(replyText) {
+            const btnWrap = document.createElement('div');
+            btnWrap.className = 'message ai-message';
+            btnWrap.innerHTML = `
+                <button class="confirm-order-btn" id="confirm-order-btn">
+                    ✅ Bu sifarişi təsdiq et
+                </button>`;
+            messagesContainer.appendChild(btnWrap);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            document.getElementById('confirm-order-btn').addEventListener('click', () => confirmOrder(replyText));
+        }
+
+        // Sifarişi .NET backend-ə göndər
+        async function confirmOrder(orderDetails) {
+            const token = localStorage.getItem('token') || localStorage.getItem('cozyloops_token');
+            if (!token) {
+                addMessage('Sifarişi təsdiq etmək üçün əvvəlcə <a href="login.html" style="color:var(--accent-color)">daxil olun</a>.', 'ai');
+                return;
+            }
+
+            try {
+                // Sifarişi backend-ə göndər
+                const response = await fetch(`${DOTNET_API}/Order/custom-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        description: orderDetails,
+                        address: "Custom LUMA Order"
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(`🎉 Sifarişiniz qəbul edildi! Sifariş nömrəsi: <strong>#${data.orderNumber}</strong><br>Sifarişinizi <a href="checklist.html" style="color:var(--accent-color)">Checklist</a> səhifəsindən izləyə bilərsiniz.`, 'ai');
+
+                    // Confirm düyməsini sil
+                    const btn = document.getElementById('confirm-order-btn');
+                    if (btn) btn.closest('.message').remove();
+                } else {
+                    addMessage('Sifariş göndərilə bilmədi. Xahiş edirik yenidən cəhd edin.', 'ai');
+                }
+            } catch (e) {
+                addMessage('Bağlantı xətası. Server işləyirmi yoxlayın.', 'ai');
             }
         }
 
+        // Əsas mesaj göndərmə funksiyası
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            const hasImage = imageInput.files[0];
+
+            if (!text && !hasImage) return;
+
+            sendBtn.disabled = true;
+            const userText = text || '📷 Referans şəkil göndərildi';
+            addMessage(userText, 'user');
+
+            conversationHistory.push({ role: 'user', content: text });
+
+            chatInput.value = '';
+            showTyping();
+
+            try {
+                let reply = '';
+
+                if (hasImage) {
+                    // Şəkil varsa /analyze-order endpoint-i
+                    const formData = new FormData();
+                    formData.append('description', text || 'Şəkildəki kimi bir məhsul istəyirəm');
+                    formData.append('lang', getLang());
+                    formData.append('file', imageInput.files[0]);
+
+                    const response = await fetch(`${LUMA_API}/analyze-order`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    reply = data.reply;
+                    isOrderProposal = true;
+
+                    // Şəkili sıfırla
+                    imageInput.value = '';
+                    imagePreviewWrap.style.display = 'none';
+                    imagePreview.src = '';
+
+                } else {
+                    // Adi chat — /ask-luma endpoint-i
+                    const formData = new FormData();
+                    formData.append('message', text);
+                    formData.append('lang', getLang());
+                    formData.append('conversation_history', JSON.stringify(conversationHistory.slice(-10)));
+
+                    const response = await fetch(`${LUMA_API}/ask-luma`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    reply = data.reply;
+
+                    // Sifariş təklifi varmı yoxla
+                    const orderKeywords = ['təxmini qiymət', 'hazırlanma müddəti', 'estimated price', 'production time', 'примерная цена'];
+                    isOrderProposal = orderKeywords.some(kw => reply.toLowerCase().includes(kw));
+                }
+
+                hideTyping();
+                conversationHistory.push({ role: 'assistant', content: reply });
+                lastLumaReply = reply;
+
+                addMessage(reply, 'ai');
+
+                // Sifariş təklifi varsa təsdiq düyməsi göstər
+                if (isOrderProposal) {
+                    addConfirmButton(reply);
+                    isOrderProposal = false;
+                }
+
+            } catch (e) {
+                hideTyping();
+                addMessage('LUMA ilə əlaqə qurmaq mümkün olmadı. Python server işləyirmi?', 'ai');
+            }
+
+            sendBtn.disabled = false;
+        }
+
         sendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', function (e) {
+        chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
     </script>
