@@ -153,5 +153,33 @@ namespace CozyLoops.API.Controllers
 
             return Ok(new { message = "Status updated.", status = order.Status.ToString() });
         }
+
+        [HttpGet("sales-chart")]
+        [Authorize]
+        public async Task<IActionResult> GetSalesChart()
+        {
+            var fourWeeksAgo = DateTime.Now.AddDays(-28);
+
+            var orders = await _context.Orders
+                .Where(o => o.OrderDate >= fourWeeksAgo)
+                .ToListAsync();
+
+            var weeks = new decimal[4];
+
+            foreach (var order in orders)
+            {
+                var daysAgo = (DateTime.Now - order.OrderDate).Days;
+                if (daysAgo < 7) weeks[3] += order.TotalPrice;
+                else if (daysAgo < 14) weeks[2] += order.TotalPrice;
+                else if (daysAgo < 21) weeks[1] += order.TotalPrice;
+                else weeks[0] += order.TotalPrice;
+            }
+
+            return Ok(new
+            {
+                labels = new[] { "Week 1", "Week 2", "Week 3", "Week 4" },
+                data = weeks
+            });
+        }
     }
 }
