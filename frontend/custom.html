@@ -7,9 +7,7 @@
     <title>LUMA - Custom Order Assistant | Cozy Loops</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         .chat-page-section {
@@ -40,6 +38,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .chat-header h1 {
@@ -72,6 +71,7 @@
             flex: 1;
             padding: 2rem;
             overflow-y: auto;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
@@ -79,8 +79,11 @@
         }
 
         .message {
-            display: flex;
             max-width: 80%;
+        }
+
+        .message.full-width {
+            max-width: 100%;
         }
 
         .message-content {
@@ -88,7 +91,6 @@
             border-radius: 15px;
             font-size: 1rem;
             line-height: 1.6;
-            white-space: pre-wrap;
         }
 
         .ai-message {
@@ -111,7 +113,6 @@
             border-top-right-radius: 2px;
         }
 
-        /* Typing indicator */
         .typing-indicator .message-content {
             background: #F3F0EC;
             padding: 1rem 1.5rem;
@@ -131,49 +132,14 @@
             animation: typingBounce 1.2s infinite;
         }
 
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes typingBounce {
-
-            0%,
-            60%,
-            100% {
-                transform: translateY(0);
-            }
-
-            30% {
-                transform: translateY(-6px);
-            }
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
         }
 
-        /* Confirm order button */
-        .confirm-order-btn {
-            margin-top: 1rem;
-            padding: 0.8rem 2rem;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-family: var(--font-body);
-            font-weight: 600;
-            transition: all 0.3s;
-            display: block;
-        }
-
-        .confirm-order-btn:hover {
-            background: var(--text-color);
-            transform: translateY(-2px);
-        }
-
-        /* Input area */
         .chat-input-area {
             padding: 1.5rem;
             background: #fff;
@@ -181,6 +147,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
+            flex-shrink: 0;
         }
 
         .input-row {
@@ -218,17 +185,9 @@
             flex-shrink: 0;
         }
 
-        .send-btn:hover {
-            transform: scale(1.05);
-        }
+        .send-btn:hover { transform: scale(1.05); }
+        .send-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
-        .send-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Image upload */
         .image-upload-row {
             display: flex;
             align-items: center;
@@ -253,9 +212,7 @@
             color: var(--accent-color);
         }
 
-        .upload-label input {
-            display: none;
-        }
+        .upload-label input { display: none; }
 
         .image-preview-wrap {
             display: none;
@@ -280,9 +237,7 @@
             line-height: 1;
         }
 
-        .remove-img-btn:hover {
-            color: red;
-        }
+        .remove-img-btn:hover { color: red; }
 
         .mode-badge {
             font-size: 0.75rem;
@@ -302,9 +257,10 @@
         <ul class="nav-links">
             <li><a href="index.html" data-i18n="nav_home">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
-            <li><a href="custom.html" class="active" data-i18n="nav_luma">LUMA</a></li>
+            
             <li><a href="cart.html"><span data-i18n="nav_card">Cart</span> (<span id="bucket-count">0</span>)</a></li>
             <li><a href="checklist.html" data-i18n="nav_checklist">Checklist</a></li>
+            <li><a href="custom.html" class="active" data-i18n="nav_luma">LUMA</a></li>
             <li class="lang-switch">
                 <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false">ENG</button>
                 <div class="lang-menu" role="menu">
@@ -321,31 +277,30 @@
 
     <section class="chat-page-section">
         <div class="chat-container-full">
+
             <div class="chat-header">
                 <div>
-                    <h1>LUMA <span class="mode-badge" id="mode-badge">Custom Order</span></h1>
-                    <p>Xüsusi sifarişinizi təsvir edin, LUMA sizə kömək edəcək.</p>
+                    <h1>LUMA <span class="mode-badge">Custom Order</span></h1>
+                    <p id="luma-subtitle"></p>
                 </div>
                 <div class="ai-avatar">L</div>
             </div>
 
             <div class="chat-messages" id="chat-messages">
                 <div class="message ai-message">
-    <div class="message-content">Salam! Mən CozyLoops-un AI köməkçisi LUMAyam. 🧶 Xüsusi sifariş vermək istəyirsinizsə, istədiyiniz məhsulu təsvir edin — rəngi, materialı, ölçüsü, forması. İstəsəniz referans şəkil də yükləyə bilərsiniz!</div>
-</div>
+                    <div class="message-content" id="welcome-text"></div>
+                </div>
             </div>
 
             <div class="chat-input-area">
-                <!-- Image upload row -->
                 <div class="image-upload-row">
                     <label class="upload-label">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="18" height="18" rx="2" />
                             <circle cx="8.5" cy="8.5" r="1.5" />
                             <polyline points="21 15 16 10 5 21" />
                         </svg>
-                        Referans şəkil əlavə et
+                        <span id="upload-label-text"></span>
                         <input type="file" id="image-input" accept="image/*">
                     </label>
                     <div class="image-preview-wrap" id="image-preview-wrap">
@@ -353,20 +308,17 @@
                         <button class="remove-img-btn" id="remove-img">✕</button>
                     </div>
                 </div>
-
-                <!-- Text input row -->
                 <div class="input-row">
-                    <input type="text" id="chat-input" placeholder="Məhsulunuzu təsvir edin...">
+                    <input type="text" id="chat-input">
                     <button class="send-btn" id="send-btn">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
+                            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -400,9 +352,6 @@
     <script src="script.js"></script>
 
     <script>
-        const LUMA_API = "http://localhost:8000";
-        const DOTNET_API = "http://localhost:5245/api";
-
         const sendBtn = document.getElementById('send-btn');
         const chatInput = document.getElementById('chat-input');
         const messagesContainer = document.getElementById('chat-messages');
@@ -411,18 +360,38 @@
         const imagePreview = document.getElementById('image-preview');
         const removeImgBtn = document.getElementById('remove-img');
 
-        // Söhbət tarixi
+        // UI Localization
+        const uiTexts = {
+            en: {
+                welcome: "Hey there! 👋 Ask me anything about our products, materials, or orders — I'm happy to help!",
+                subtitle: "Describe your order, LUMA will help you.",
+                upload: "Add reference image",
+                placeholder: "Describe your product..."
+            },
+            az: {
+                welcome: "Salam! 👋 Məhsullar, materiallar və ya sifarişlər haqqında istənilən sualı verin — kömək etməyə hazıram!",
+                subtitle: "Xüsusi sifarişinizi təsvir edin, LUMA sizə kömək edəcək.",
+                upload: "Referans şəkil əlavə et",
+                placeholder: "Məhsulunuzu təsvir edin..."
+            },
+            ru: {
+                welcome: "Привет! 👋 Задайте любой вопрос о наших товарах, материалах или заказах — с удовольствием помогу!",
+                subtitle: "Опишите ваш заказ, LUMA поможет вам.",
+                upload: "Добавить референс фото",
+                placeholder: "Опишите ваш товар..."
+            }
+        };
+
+        const currentLang = localStorage.getItem('cozy_lang') || 'en';
+        const t = uiTexts[currentLang] || uiTexts['en'];
+
+        document.getElementById('welcome-text').textContent = t.welcome;
+        document.getElementById('luma-subtitle').textContent = t.subtitle;
+        document.getElementById('upload-label-text').textContent = t.upload;
+        document.getElementById('chat-input').placeholder = t.placeholder;
+
         let conversationHistory = [];
-        // Son LUMA cavabı (sifariş təsdiqi üçün)
-        let lastLumaReply = "";
-        let isOrderProposal = false;
 
-        // Aktiv dil
-        function getLang() {
-            return localStorage.getItem('cozy_lang') || 'en';
-        }
-
-        // Şəkil seçimi
         imageInput.addEventListener('change', function () {
             const file = this.files[0];
             if (file) {
@@ -435,200 +404,189 @@
             }
         });
 
-        // Şəkili sil
         removeImgBtn.addEventListener('click', () => {
             imageInput.value = '';
             imagePreviewWrap.style.display = 'none';
             imagePreview.src = '';
         });
 
-        // Mesaj əlavə et
         function addMessage(text, role) {
-    const msg = document.createElement('div');
-    msg.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
-    // \n-ləri <br>-ə çevir, əvvəl-axır boşluqları sil
-    const formatted = text.trim().replace(/\n+/g, ' ');
-    msg.innerHTML = `<div class="message-content">${formatted}</div>`;
-    messagesContainer.appendChild(msg);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    return msg;
-}
-        // Typing indicator
+            const msg = document.createElement('div');
+            msg.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+            msg.innerHTML = `<div class="message-content">${text}</div>`;
+            messagesContainer.appendChild(msg);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return msg;
+        }
+
         function showTyping() {
             const msg = document.createElement('div');
             msg.className = 'message ai-message typing-indicator';
             msg.id = 'typing-indicator';
-            msg.innerHTML = `
-                <div class="message-content">
-                    <div class="typing-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                </div>`;
+            msg.innerHTML = `<div class="message-content"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
             messagesContainer.appendChild(msg);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function hideTyping() {
-            const indicator = document.getElementById('typing-indicator');
-            if (indicator) indicator.remove();
+            document.getElementById('typing-indicator')?.remove();
         }
 
-        // Sifariş təsdiq düyməsi
-        function addConfirmButton(replyText) {
-            const btnWrap = document.createElement('div');
-            btnWrap.className = 'message ai-message';
-            btnWrap.innerHTML = `
-                <button class="confirm-order-btn" id="confirm-order-btn">
-                    ✅ Bu sifarişi təsdiq et
-                </button>`;
-            messagesContainer.appendChild(btnWrap);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
 
-            document.getElementById('confirm-order-btn').addEventListener('click', () => confirmOrder(replyText));
-        }
-
-        // Sifarişi .NET backend-ə göndər
-        async function confirmOrder(orderDetails) {
-            const token = localStorage.getItem('token') || localStorage.getItem('cozyloops_token');
-            if (!token) {
-                addMessage('Sifarişi təsdiq etmək üçün əvvəlcə <a href="login.html" style="color:var(--accent-color)">daxil olun</a>.', 'ai');
-                return;
-            }
+            sendBtn.disabled = true;
+            addMessage(escapeHtml(text), 'user');
+            conversationHistory.push({ role: 'user', content: text });
+            chatInput.value = '';
+            showTyping();
 
             try {
-                // Sifarişi backend-ə göndər
-                const response = await fetch(`${DOTNET_API}/Order/custom-order`, {
+                const productsRes = await fetch(`${API_BASE_URL}/Product`);
+                const products = await productsRes.json();
+                const productList = products.map(p =>
+                    `ID:${p.id} | ${p.name} | ${p.price} AZN | Material: ${p.material} | Category: ${p.category?.name || ''} | ${p.description}`
+                ).join('\n');
+
+                const systemPrompt = `You are LUMA, a friendly AI assistant for CozyLoops — a handmade crochet shop in Azerbaijan.
+You are warm, cheerful, and genuinely excited to help customers find the perfect handmade product.
+Your tone is casual, sincere, and natural — like a knowledgeable friend in a cozy shop, not a robot.
+
+AVAILABLE PRODUCTS:
+${productList}
+
+PERSONALIZATION RULES - MANDATORY:
+- Carefully read the customer's request and match it to available products
+- Match by: product name, material, category, description, price range
+- If multiple products match, recommend the most relevant ones
+- Never recommend products that clearly don't match the request
+- If no products match, kindly say so and suggest browsing the full collection
+
+LANGUAGE RULES - MANDATORY:
+- Detect the language of the user's message automatically
+- Always respond in the same language the user wrote in
+- If the user writes in Azerbaijani, respond in Azerbaijani
+- If the user writes in Russian, respond in Russian
+- If the user writes in English, respond in English
+- If the user switches language, you switch too
+- NEVER respond in Turkish — Turkish and Azerbaijani are different languages
+- NEVER respond in a different language than the user's message
+
+TONE RULES - MANDATORY:
+- Be warm, friendly and sincere — like a helpful shop assistant
+- Show genuine enthusiasm when recommending products
+- Never sound robotic or like you are reading from a list
+- Use natural conversational flow
+- First react to the user's intent in a human way, then suggest products
+- Do NOT copy product Description text verbatim from AVAILABLE PRODUCTS
+- Summarize product details naturally in your own words
+- Keep recommendation text practical and personal
+
+TEXT FORMATTING RULES - MANDATORY:
+- Wrap important words or phrases with <b>word</b> for bold
+- When listing product details, use bullet points with • (not - or numbers)
+- Replace text labels with emojis naturally:
+  • Price → 💰
+  • Material → 🧶
+  • Category → 🏷️
+  • Stock → 📦
+- Do NOT use markdown like **bold** or _italic_
+- Do NOT use markdown headings like #, ##, ###
+- Only use <b> tags for formatting
+
+RESPONSE FORMAT - MANDATORY:
+- First give a warm natural text response (max 2-3 sentences)
+- If listing product details, use bullet points with emojis
+- If your response relates to specific products, append at the END on its own line:
+  ProductIds:[7,12,15]
+- STRICT RULE: If you mention, describe, or recommend any product from AVAILABLE PRODUCTS, you MUST include ProductIds:[...] at the end
+- STRICT RULE: If at least one product is referenced in your answer, ProductIds:[...] is required and cannot be omitted
+- STRICT RULE: ProductIds:[...] must contain at least one valid ID when a product is referenced
+- STRICT RULE: If no product is referenced at all, do not include ProductIds:[...]
+- Never fabricate product IDs — only use IDs from AVAILABLE PRODUCTS
+- ProductIds:[...] must be plain text on its own line at the very end
+
+SHOP RULES - MANDATORY:
+- Never mention URLs, file names, or page names like cart.html
+- If asked about orders: say "Check your orders in the <b>Checklist</b> page"
+- If asked about adding to cart: say "Hit the <b>Add to Cart</b> button on the product page"
+- If asked about custom orders: say "Visit our <b>LUMA</b> page to create a custom order"
+- Never make up prices, stock counts, or product details — only use data from AVAILABLE PRODUCTS`;
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`
                     },
                     body: JSON.stringify({
-                        description: orderDetails,
-                        address: "Custom LUMA Order"
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            ...conversationHistory.slice(-10)
+                        ],
+                        max_tokens: 400
                     })
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    addMessage(`🎉 Sifarişiniz qəbul edildi! Sifariş nömrəsi: <strong>#${data.orderNumber}</strong><br>Sifarişinizi <a href="checklist.html" style="color:var(--accent-color)">Checklist</a> səhifəsindən izləyə bilərsiniz.`, 'ai');
+                const data = await response.json();
+                const reply = data.choices?.[0]?.message?.content || 'Something went wrong.';
+                conversationHistory.push({ role: 'assistant', content: reply });
 
-                    // Confirm düyməsini sil
-                    const btn = document.getElementById('confirm-order-btn');
-                    if (btn) btn.closest('.message').remove();
-                } else {
-                    addMessage('Sifariş göndərilə bilmədi. Xahiş edirik yenidən cəhd edin.', 'ai');
+                hideTyping();
+
+                const match = reply.match(/ProductIds:\[([^\]]+)\]/);
+                const cleanReply = reply.replace(/ProductIds:\[[^\]]*\]/, '').trim();
+
+                addMessage(cleanReply, 'ai');
+
+                if (match) {
+                    const ids = match[1].split(',').map(id => parseInt(id.trim()));
+                    const matched = products.filter(p => ids.includes(p.id));
+                    if (matched.length > 0) showProductCards(matched);
                 }
+
             } catch (e) {
-                addMessage('Bağlantı xətası. Server işləyirmi yoxlayın.', 'ai');
+                hideTyping();
+                addMessage('Something went wrong. Please try again.', 'ai');
+                console.error(e);
             }
+
+            sendBtn.disabled = false;
         }
 
-        // Əsas mesaj göndərmə funksiyası
-        const OPENAI_API_KEY = "sk-..."; 
-
-async function sendMessage() {
-    const text = chatInput.value.trim();
-    if (!text) return;
-
-    sendBtn.disabled = true;
-    addMessage(text, 'user');
-    conversationHistory.push({ role: 'user', content: text });
-    chatInput.value = '';
-    showTyping();
-
-    try {
-        // 1. Bütün məhsulları çək
-        const productsRes = await fetch(`${DOTNET_API}/Product`);
-        const products = await productsRes.json();
-
-        const productList = products.map(p =>
-            `ID:${p.id} | ${p.name} | ${p.price} AZN | Material: ${p.material} | Category: ${p.category?.name || ''} | ${p.description}`
-        ).join('\n');
-
-        // 2. OpenAI-ya göndər
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                messages: [
-                    {
-                        role: 'system',
-                        content: `You are LUMA, a friendly assistant for CozyLoops crochet shop. 
-Here are all available products:
-${productList}
-
-When recommending products, you MUST include matching product IDs at the end of your response in this exact format: ProductIds:[1,4,5]
-If no products match, do not include ProductIds.
-Keep response to 2-3 sentences max. Be warm and natural.`
-                    },
-                    ...conversationHistory.slice(-10)
-                ],
-                max_tokens: 300
-            })
-        });
-
-        const data = await response.json();
-        const reply = data.choices[0].message.content;
-
-        hideTyping();
-        conversationHistory.push({ role: 'assistant', content: reply });
-
-        // 3. ProductIds regex ilə çıxar
-        const match = reply.match(/ProductIds:\[([^\]]+)\]/);
-        const cleanReply = reply.replace(/ProductIds:\[[^\]]*\]/, '').trim();
-
-        addMessage(cleanReply, 'ai');
-
-        // 4. Məhsul kartlarını göstər
-        if (match) {
-            const ids = match[1].split(',').map(id => parseInt(id.trim()));
-            const matched = products.filter(p => ids.includes(p.id));
-            if (matched.length > 0) {
-                showProductCards(matched);
-            }
-        }
-
-    } catch (e) {
-        hideTyping();
-        addMessage('Something went wrong. Please try again.', 'ai');
-        console.error(e);
-    }
-
-    sendBtn.disabled = false;
-}
-
-function showProductCards(products) {
-    const cardWrap = document.createElement('div');
-    cardWrap.className = 'message ai-message';
-    cardWrap.style.maxWidth = '100%';
-    cardWrap.innerHTML = `
-        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
-            ${products.map(p => `
-                <div onclick="window.location.href='detail.html?id=${p.id}'" style="
-                    width:160px; border-radius:12px; overflow:hidden;
-                    border:1px solid #eee; cursor:pointer; transition:transform 0.2s;
-                    background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.06);"
-                    onmouseover="this.style.transform='translateY(-3px)'"
-                    onmouseout="this.style.transform='translateY(0)'">
-                    <img src="http://localhost:5245${p.imageUrl}" 
-                         style="width:100%; height:120px; object-fit:cover;"
-                         onerror="this.src='images/placeholder.webp'">
-                    <div style="padding:0.7rem;">
-                        <div style="font-weight:600; font-size:0.85rem; margin-bottom:4px;">${escapeHtml(p.name)}</div>
-                        <div style="color:#c9a96e; font-weight:700; font-size:0.9rem;">${p.price}.00 AZN</div>
-                    </div>
+        function showProductCards(products) {
+            const cardWrap = document.createElement('div');
+            cardWrap.className = 'message ai-message full-width';
+            cardWrap.innerHTML = `
+                <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
+                    ${products.map(p => `
+                        <div onclick="window.location.href='detail.html?id=${p.id}'" style="
+                            width:160px; border-radius:12px; overflow:hidden;
+                            border:1px solid #eee; cursor:pointer; transition:transform 0.2s;
+                            background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.06);"
+                            onmouseover="this.style.transform='translateY(-3px)'"
+                            onmouseout="this.style.transform='translateY(0)'">
+                            <img src="http://localhost:5245${p.imageUrl}"
+                                 style="width:100%; height:120px; object-fit:cover;"
+                                 onerror="this.src='images/placeholder.webp'">
+                            <div style="padding:0.7rem;">
+                                <div style="font-weight:600; font-size:0.85rem; margin-bottom:4px;">${escapeHtml(p.name)}</div>
+                                <div style="color:#c9a96e; font-weight:700; font-size:0.9rem;">${p.price}.00 AZN</div>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-    `;
-    messagesContainer.appendChild(cardWrap);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
+            `;
+            messagesContainer.appendChild(cardWrap);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 
