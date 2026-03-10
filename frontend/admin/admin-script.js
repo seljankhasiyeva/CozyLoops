@@ -1,8 +1,10 @@
 // ==========================================
 // COZY LOOPS - ADMIN PANEL SCRIPT
 // ==========================================
+// Load environment configuration
+// Note: env.js must be included before this script in HTML
 
-const API_BASE = "http://localhost:5245/api";
+const API_BASE = CONFIG.API_BASE_URL;
 
 function getToken() {
     return localStorage.getItem('token') || localStorage.getItem('cozyloops_token');
