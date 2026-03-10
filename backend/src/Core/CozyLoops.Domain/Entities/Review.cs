@@ -15,7 +15,8 @@ namespace CozyLoops.Domain.Entities
         public string Comment { get; set; } = string.Empty;
         public int Rating { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public Product Product { get; set; } = null!;
-        public AppUser AppUser { get; set; } = null!;
+        public Product? Product { get; set; }
+        public AppUser? AppUser { get; set; }
     }
+
 }

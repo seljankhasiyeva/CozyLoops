@@ -21,6 +21,7 @@ namespace CozyLoops.API.Controllers
         }
 
         [HttpGet("product/{productId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductReviews(int productId)
         {
             var reviews = await _context.Reviews
@@ -45,15 +46,20 @@ namespace CozyLoops.API.Controllers
         public async Task<IActionResult> AddReview([FromBody] Review review)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             if (userId == null) return Unauthorized();
 
-            review.AppUserId = userId;
-            review.UserName = (await _context.Users.FindAsync(userId))?.UserName ?? "Unknown";
+            var newReview = new Review
+            {
+                ProductId = review.ProductId,
+                Rating = review.Rating,
+                Comment = review.Comment,
+                AppUserId = userId,
+                UserName = (await _context.Users.FindAsync(userId))?.UserName ?? "Unknown",
+                CreatedDate = DateTime.Now
+            };
 
-            _context.Reviews.Add(review);
+            _context.Reviews.Add(newReview);
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Your review has been added successfully!" });
         }
 

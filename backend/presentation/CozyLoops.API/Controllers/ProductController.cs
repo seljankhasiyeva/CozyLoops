@@ -129,6 +129,7 @@ namespace CozyLoops.API.Controllers
             existingProduct.Description = updatedProduct.Description;
             existingProduct.ProductCode = updatedProduct.ProductCode; 
             existingProduct.CategoryId = updatedProduct.CategoryId;
+            existingProduct.Material = updatedProduct.Material;
 
             if (image != null && image.Length > 0)
             {

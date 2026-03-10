@@ -525,87 +525,110 @@
         }
 
         // Əsas mesaj göndərmə funksiyası
-        async function sendMessage() {
-            const text = chatInput.value.trim();
-            const hasImage = imageInput.files[0];
+        const OPENAI_API_KEY = "sk-..."; 
 
-            if (!text && !hasImage) return;
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
 
-            sendBtn.disabled = true;
-            const userText = text || '📷 Referans şəkil göndərildi';
-            addMessage(userText, 'user');
+    sendBtn.disabled = true;
+    addMessage(text, 'user');
+    conversationHistory.push({ role: 'user', content: text });
+    chatInput.value = '';
+    showTyping();
 
-            conversationHistory.push({ role: 'user', content: text });
+    try {
+        // 1. Bütün məhsulları çək
+        const productsRes = await fetch(`${DOTNET_API}/Product`);
+        const products = await productsRes.json();
 
-            chatInput.value = '';
-            showTyping();
+        const productList = products.map(p =>
+            `ID:${p.id} | ${p.name} | ${p.price} AZN | Material: ${p.material} | Category: ${p.category?.name || ''} | ${p.description}`
+        ).join('\n');
 
-            try {
-                let reply = '';
+        // 2. OpenAI-ya göndər
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are LUMA, a friendly assistant for CozyLoops crochet shop. 
+Here are all available products:
+${productList}
 
-                if (hasImage) {
-                    // Şəkil varsa /analyze-order endpoint-i
-                    const formData = new FormData();
-                    formData.append('description', text || 'Şəkildəki kimi bir məhsul istəyirəm');
-                    formData.append('lang', getLang());
-                    formData.append('file', imageInput.files[0]);
+When recommending products, you MUST include matching product IDs at the end of your response in this exact format: ProductIds:[1,4,5]
+If no products match, do not include ProductIds.
+Keep response to 2-3 sentences max. Be warm and natural.`
+                    },
+                    ...conversationHistory.slice(-10)
+                ],
+                max_tokens: 300
+            })
+        });
 
-                    const response = await fetch(`${LUMA_API}/analyze-order`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    reply = data.reply;
-                    isOrderProposal = true;
+        const data = await response.json();
+        const reply = data.choices[0].message.content;
 
-                    // Şəkili sıfırla
-                    imageInput.value = '';
-                    imagePreviewWrap.style.display = 'none';
-                    imagePreview.src = '';
+        hideTyping();
+        conversationHistory.push({ role: 'assistant', content: reply });
 
-                } else {
-                    // Adi chat — /ask-luma endpoint-i
-                    const formData = new FormData();
-                    formData.append('message', text);
-                    formData.append('lang', getLang());
-                    formData.append('conversation_history', JSON.stringify(conversationHistory.slice(-10)));
+        // 3. ProductIds regex ilə çıxar
+        const match = reply.match(/ProductIds:\[([^\]]+)\]/);
+        const cleanReply = reply.replace(/ProductIds:\[[^\]]*\]/, '').trim();
 
-                    const response = await fetch(`${LUMA_API}/ask-luma`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    reply = data.reply;
+        addMessage(cleanReply, 'ai');
 
-                    // Sifariş təklifi varmı yoxla
-                    const orderKeywords = ['təxmini qiymət', 'hazırlanma müddəti', 'estimated price', 'production time', 'примерная цена'];
-                    isOrderProposal = orderKeywords.some(kw => reply.toLowerCase().includes(kw));
-                }
-
-                hideTyping();
-                conversationHistory.push({ role: 'assistant', content: reply });
-                lastLumaReply = reply;
-
-                addMessage(reply, 'ai');
-
-                // Sifariş təklifi varsa təsdiq düyməsi göstər
-                if (isOrderProposal) {
-                    addConfirmButton(reply);
-                    isOrderProposal = false;
-                }
-
-            } catch (e) {
-                hideTyping();
-                addMessage('LUMA ilə əlaqə qurmaq mümkün olmadı. Python server işləyirmi?', 'ai');
+        // 4. Məhsul kartlarını göstər
+        if (match) {
+            const ids = match[1].split(',').map(id => parseInt(id.trim()));
+            const matched = products.filter(p => ids.includes(p.id));
+            if (matched.length > 0) {
+                showProductCards(matched);
             }
-
-            sendBtn.disabled = false;
         }
 
-        sendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
+    } catch (e) {
+        hideTyping();
+        addMessage('Something went wrong. Please try again.', 'ai');
+        console.error(e);
+    }
+
+    sendBtn.disabled = false;
+}
+
+function showProductCards(products) {
+    const cardWrap = document.createElement('div');
+    cardWrap.className = 'message ai-message';
+    cardWrap.style.maxWidth = '100%';
+    cardWrap.innerHTML = `
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
+            ${products.map(p => `
+                <div onclick="window.location.href='detail.html?id=${p.id}'" style="
+                    width:160px; border-radius:12px; overflow:hidden;
+                    border:1px solid #eee; cursor:pointer; transition:transform 0.2s;
+                    background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.06);"
+                    onmouseover="this.style.transform='translateY(-3px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    <img src="http://localhost:5245${p.imageUrl}" 
+                         style="width:100%; height:120px; object-fit:cover;"
+                         onerror="this.src='images/placeholder.webp'">
+                    <div style="padding:0.7rem;">
+                        <div style="font-weight:600; font-size:0.85rem; margin-bottom:4px;">${escapeHtml(p.name)}</div>
+                        <div style="color:#c9a96e; font-weight:700; font-size:0.9rem;">${p.price}.00 AZN</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    messagesContainer.appendChild(cardWrap);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
     </script>
 </body>
 
