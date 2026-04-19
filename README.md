@@ -6,7 +6,7 @@ CozyLoops is a full-stack e-commerce application designed for selling high-quali
 
 - Product Management: Dynamic product listing with "New Arrival" tags and detailed product pages.
 
-- Shopping Cart (Bucket): Full cart functionality (Add, update quantity, remove) linked to user accounts.
+- Shopping Cart: Full cart functionality (Add, update quantity, remove) linked to user accounts.
 
 - Checkout System: Order processing with address management.
 
