@@ -1791,6 +1791,77 @@ body {
     color: #999;
     padding: 0.5rem 0;
 }
+/* HAMBURGER */
+.hamburger {
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+    z-index: 1001;
+}
+
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--text-color);
+    transition: all 0.3s;
+}
+
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (min-width: 901px) {
+    .hamburger { display: none !important; }
+}
+
+@media (max-width: 900px) {
+    .hamburger { display: flex !important; }
+    .auth-buttons {
+    display: flex !important;
+}
+    .nav-links {
+        display: none !important;
+        position: fixed;
+        top: 70px; left: 0;
+        width: 100%;
+        background: rgba(248, 245, 242, 0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        padding: 1rem 0 2rem 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        z-index: 999;
+    }
+    .nav-links.open { display: flex !important; }
+    .nav-links.open .lang-switch {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+    .nav-links li { width: 100%; text-align: center; }
+    .nav-links a { display: block; padding: 1rem 0; font-size: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .hero-title { font-size: 2.8rem; }
+    .bucket-container { grid-template-columns: 1fr; gap: 2rem; }
+    .footer-content { gap: 2rem; }
+    .checklist-title { font-size: 2rem; }
+    .status-step { width: 25%; }
+    .step-label { font-size: 0.7rem; }
+}
+
+@media (max-width: 480px) {
+    .navbar { padding: 1rem 4%; }
+    .logo { font-size: 1.4rem; }
+    .hero-title { font-size: 2rem; }
+    .pd-title { font-size: 2rem; }
+    .page-title { font-size: 2rem; }
+    .cart-product-info img { width: 60px; height: 60px; }
+}
 html {
     visibility: hidden;
 }

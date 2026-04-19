@@ -254,6 +254,11 @@
 
     <nav class="navbar">
         <div class="logo">CozyLoops<span class="dot">.</span></div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
         <ul class="nav-links">
             <li><a href="index.html" data-i18n="nav_home">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
@@ -350,6 +355,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="env.js"></script>
     <script src="translations.js"></script>
+    <script src="env.local.js"></script>
     <script src="script.js"></script>
 
     <script>
@@ -513,6 +519,10 @@ SHOP RULES - MANDATORY:
 - If asked about orders: say "Check your orders in the <b>Checklist</b> page"
 - If asked about adding to cart: say "Hit the <b>Add to Cart</b> button on the product page"
 - If asked about custom orders: say "Visit our <b>LUMA</b> page to create a custom order"
+- If no products match exactly, recommend the CLOSEST available products by color, style, or category
+- For example: if user asks for "red hat" and no red hat exists, suggest available hats in other colors
+- Always show at least 1-2 products that are most relevant, never say "we don't have it" without suggesting alternatives
+- Include ProductIds:[...] even when suggesting alternatives
 - Never make up prices, stock counts, or product details — only use data from AVAILABLE PRODUCTS`;
 
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {

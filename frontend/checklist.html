@@ -158,6 +158,11 @@
 
     <nav class="navbar">
         <div class="logo">CozyLoops<span class="dot">.</span></div>
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
         <ul class="nav-links">
             <li><a href="index.html" data-i18n="nav_home">Home</a></li>
             <li><a href="products.html" data-i18n="nav_products">Products</a></li>
@@ -212,16 +217,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="env.js"></script>
     <script src="translations.js"></script>
+    <script src="env.local.js"></script>
     <script src="script.js"></script>
     <script>
-        const BASE = "http://localhost:5245";
+        // Use CONFIG from env.js
+        const BASE = typeof CONFIG !== 'undefined' ? CONFIG.BASE_URL : 'http://localhost:5245';
 
         async function loadMyOrders() {
             const token = localStorage.getItem('token');
             const container = document.querySelector('.checklist-container');
             if (!container) return;
 
-            // Login yoxlamasÃƒâ€žÃ‚Â±
+            // Login check
             if (!token) {
                 container.innerHTML = '<p style="text-align:center; padding:40px; color:#888;">Please <a href="login.html">login</a> to view your orders.</p>';
                 return;

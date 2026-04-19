@@ -7,7 +7,9 @@
     <title>Edit Product | CozyLoops Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="admin-style.css">
 </head>
@@ -48,7 +50,8 @@
                     </div>
                     <div class="form-group">
                         <label for="product-price">Price ($)</label>
-                        <input type="number" id="product-price" class="form-control" placeholder="0.00" step="0.01" required>
+                        <input type="number" id="product-price" class="form-control" placeholder="0.00" step="0.01"
+                            required>
                     </div>
                 </div>
 
@@ -59,7 +62,8 @@
                     </div>
                     <div class="form-group">
                         <label for="product-material">Material</label>
-                        <input type="text" id="product-material" class="form-control" placeholder="e.g. 100% Cotton" required>
+                        <input type="text" id="product-material" class="form-control" placeholder="e.g. 100% Cotton"
+                            required>
                     </div>
                 </div>
 
@@ -70,7 +74,8 @@
 
                 <div class="form-group">
                     <label for="product-description">Description</label>
-                    <textarea id="product-description" class="form-control" placeholder="Describe your handcrafted item..."></textarea>
+                    <textarea id="product-description" class="form-control"
+                        placeholder="Describe your handcrafted item..."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -79,12 +84,14 @@
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <p>Click to upload product image</p>
                         <input type="file" id="product-image-input" style="display: none;" accept="image/*">
-                        <img id="image-preview" class="upload-preview" src="#" alt="Preview" style="display:none; max-width: 200px; margin-top: 10px;">
+                        <img id="image-preview" class="upload-preview" src="#" alt="Preview"
+                            style="display:none; max-width: 200px; margin-top: 10px;">
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="window.location.href='products.html'">Cancel</button>
+                    <button type="button" class="btn-secondary"
+                        onclick="window.location.href='products.html'">Cancel</button>
                     <button type="submit" class="btn-primary" id="submit-btn">Save Product</button>
                 </div>
             </form>
@@ -130,7 +137,7 @@
                         document.getElementById('product-material').value = product.material || ''; // ADDED
                         document.getElementById('product-description').value = product.description || '';
                         document.getElementById('product-sku').value = product.productCode || '';
-                        
+
                         if (product.imageUrl) {
                             const preview = document.getElementById('image-preview');
                             preview.src = `http://localhost:5245${product.imageUrl}`;
@@ -153,7 +160,7 @@
                 formData.append('Material', document.getElementById('product-material').value); // FIXED: Material is now sent
                 formData.append('Description', document.getElementById('product-description').value);
                 formData.append('ProductCode', document.getElementById('product-sku').value || '');
-                
+
                 const catVal = document.getElementById('product-category').value;
                 formData.append('CategoryId', catVal ? catVal : '0');
 
@@ -166,8 +173,12 @@
                 const method = productId ? 'PUT' : 'POST';
 
                 try {
+                    const token = localStorage.getItem('token') || localStorage.getItem('cozyloops_token');
                     const response = await fetch(url, {
                         method: method,
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
                         body: formData
                     });
 
@@ -189,7 +200,7 @@
             const preview = document.getElementById('image-preview');
 
             dropzone.onclick = () => fileInput.click();
-            fileInput.onchange = function() {
+            fileInput.onchange = function () {
                 const file = this.files[0];
                 if (file) {
                     const reader = new FileReader();
@@ -205,4 +216,5 @@
         });
     </script>
 </body>
+
 </html>

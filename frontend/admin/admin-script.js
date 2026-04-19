@@ -4,7 +4,7 @@
 // Load environment configuration
 // Note: env.js must be included before this script in HTML
 
-const API_BASE = CONFIG.API_BASE_URL;
+const API_BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) ? CONFIG.API_BASE_URL : 'http://localhost:5245/api';
 
 function getToken() {
     return localStorage.getItem('token') || localStorage.getItem('cozyloops_token');
@@ -135,7 +135,7 @@ async function fetchProducts() {
         tableBody.innerHTML = products.map(product => `
             <tr>
                 <td class="product-img-td">
-                    <img src="${product.imageUrl ? 'http://localhost:5245' + product.imageUrl : '../images/placeholder.webp'}"
+                    <img src="${product.imageUrl ? API_BASE.replace('/api', '') + product.imageUrl : '../images/placeholder.webp'}"
                          alt="${escapeHtml(product.name)}"
                          onerror="this.src='../images/placeholder.webp'">
                 </td>
@@ -192,7 +192,7 @@ function filterProductsByCategory(categoryId) {
     tableBody.innerHTML = filtered.map(product => `
         <tr>
             <td class="product-img-td">
-                <img src="${product.imageUrl ? 'http://localhost:5245' + product.imageUrl : '../images/placeholder.webp'}"
+                <img src="${product.imageUrl ? API_BASE.replace('/api', '') + product.imageUrl : '../images/placeholder.webp'}"
                      alt="${escapeHtml(product.name)}"
                      onerror="this.src='../images/placeholder.webp'">
             </td>

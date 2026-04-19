@@ -1,3 +1,2 @@
 .env
-frontend/env.js
 frontend/env.local.js

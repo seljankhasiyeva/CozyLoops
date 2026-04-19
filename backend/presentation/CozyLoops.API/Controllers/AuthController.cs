@@ -14,10 +14,12 @@ namespace CozyLoops.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(UserManager<AppUser> userManager)
+        public AuthController(UserManager<AppUser> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -61,7 +63,7 @@ namespace CozyLoops.API.Controllers
                 authClaims.Add(new Claim(ClaimTypes.Role, role));
 
             var authSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("en_azi_otuz_iki_simvoldan_ibaret_olmali_very_secret_key_2026_cff_final_project"));
+                Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings").GetSection("Secret").Value ?? "default_secret_key"));
 
             var token = new JwtSecurityToken(
                 issuer: "CozyLoops",
